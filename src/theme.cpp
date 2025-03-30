@@ -6,7 +6,6 @@
 #include <QSettings>
 #include <QStyle>
 #include <map>
-
 using namespace std;
 
 
@@ -91,15 +90,15 @@ static QBrush parseBrush(const QString &s)
 
     else if (s[0] == '#')
     {
-        auto c = QColor::fromString(s);
-        return c.isValid() ? QBrush(QColor::fromString(s)) : QBrush{};
+        QColor c(s);
+        return c.isValid() ? QBrush(c) : QBrush{};
     }
 
     // for (int cr = 0; cr < (int)QPalette::NColorRoles; ++cr)
     //     if (s == QMetaEnum::fromType<QPalette::ColorRole>().key(cr))
     //         return palette.color(QPalette::Active, static_cast<QPalette::ColorRole>(cr));
 
-    else if (auto c = QColor::fromString(s); c.isValid())
+    else if (QColor c(s); c.isValid())
         return c;
 
     else
