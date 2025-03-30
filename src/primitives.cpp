@@ -1,7 +1,6 @@
 // Copyright (c) 2023-2025 Manuel Schneider
 
 #include "primitives.h"
-#include "QtWidgets/qtwidgetsexports.h"
 #include <QPainterPath>
 
 QPixmap pixelPerfectRoundedRect(QSize const &size, QBrush const &fill_brush, int const radius,
@@ -134,9 +133,7 @@ void drawDebugRect(QPainter &p, const QRectF &rect, const QString& name, const Q
     p.restore();
 }
 
-QT_BEGIN_NAMESPACE
-extern Q_WIDGETS_EXPORT void qt_blurImage(QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed/* = 0*/);
-QT_END_NAMESPACE
+extern void qt_blurImage(QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed/* = 0*/);
 
 QImage blurImage(QImage &src, qreal radius, bool quality, bool alphaOnly, int)
 {
