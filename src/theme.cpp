@@ -137,8 +137,7 @@ Theme Theme::read(const QString &path)
                 ++it;
 
             else if (auto b = parseBrush(v); b.style() == Qt::NoBrush)
-                throw runtime_error(format("Invalid brush for {}: {}",
-                                           k.toStdString(), v.toStdString()));
+                throw runtime_error(QString("Invalid brush for %1: %2").arg(k, v).toStdString());
 
             else
             {
@@ -148,7 +147,7 @@ Theme Theme::read(const QString &path)
         }
 
         if (c == kv.size())
-            throw runtime_error(format("Cyclic reference: {}", kv[0].toStdString()));
+            throw runtime_error(QString("Cyclic reference: %1").arg(kv[0]).toStdString());
 
         // Resolve references (only references in kv)
         for (auto it = kv.begin(); it != kv.end();)
@@ -171,7 +170,7 @@ Theme Theme::read(const QString &path)
 
             // If neither is the case we have a dangling refernce;
             else
-                throw runtime_error(format("Dangling reference: {}", v.toStdString()));
+                throw runtime_error(QString("Dangling reference: %1").arg(v).toStdString());
         }
     }
 
@@ -182,7 +181,7 @@ Theme Theme::read(const QString &path)
         try {
             return brushes.at(role);
         } catch (const out_of_range &e) {
-            throw runtime_error(format("Mandatory key missing: {}", role));
+            throw runtime_error(QString("Mandatory key missing: %1").arg(role).toStdString());
         }
     };
 
