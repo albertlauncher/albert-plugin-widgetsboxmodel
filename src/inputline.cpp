@@ -269,20 +269,14 @@ void InputLine::keyPressEvent(QKeyEvent *event)
 
     case Qt::Key_Tab:
         if (!completion_.isEmpty())
-        {
             setText(text().left(trigger_length_) + completion_);
-            return event->accept();
-        }
+        return;
 
     case Qt::Key_Return:
     case Qt::Key_Enter:
-        if (event->modifiers() == Qt::NoModifier)
-            return event->ignore();
-        else if (event->modifiers().testFlag(Qt::ShiftModifier))
-        {
+        if (event->modifiers().testFlag(Qt::ShiftModifier))
             insertPlainText("\n");
-            return event->accept();
-        }
+        return;
 
 #if defined Q_OS_MACOS
     case Qt::Key_Backspace:
@@ -293,8 +287,8 @@ void InputLine::keyPressEvent(QKeyEvent *event)
             c.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
             c.removeSelectedText();
             c.endEditBlock();
-            return event->accept();
         }
+        break;
 #endif
 
     default:
