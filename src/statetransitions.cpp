@@ -11,9 +11,9 @@ struct EventTransition : public QAbstractTransition
 {
     const int type;
 
-    EventTransition(int type, QState *source) :
-        QAbstractTransition(source),
-        type(type)
+    EventTransition(int t, QState *s) :
+        QAbstractTransition(s),
+        type(t)
     {}
 
     void onTransition(QEvent *) override {}
@@ -81,8 +81,8 @@ QAbstractTransition *addTransition(QState *source, QState *target,
     {
         function<bool(QEvent*)> guard;
 
-        GuardedEventTransition(QObject *object, QEvent::Type type, function<bool(QEvent*)> guard, QState *source)
-            : QEventTransition(object, type, source), guard(guard) {}
+        GuardedEventTransition(QObject *o, QEvent::Type t, function<bool(QEvent*)> g, QState *s)
+            : QEventTransition(o, t, s), guard(g) {}
 
         bool eventTest(QEvent *event) override
         {
@@ -106,10 +106,10 @@ QAbstractTransition *addTransition(QState *source, QState *target,
     {
         function<bool(QKeyEvent*)> guard;
 
-        GuardedEventTransition(QObject *object, QEvent::Type type, function<bool(QKeyEvent*)> guard, QState *source)
-            : QEventTransition(object, type, source), guard(guard)
+        GuardedEventTransition(QObject *o, QEvent::Type t, function<bool(QKeyEvent*)> g, QState *s)
+            : QEventTransition(o, t, s), guard(g)
         {
-            assert(type == QEvent::KeyPress || type == QEvent::KeyRelease);
+            assert(t == QEvent::KeyPress || t == QEvent::KeyRelease);
         }
 
         bool eventTest(QEvent *event) override
