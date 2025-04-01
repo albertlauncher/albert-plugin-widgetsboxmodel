@@ -69,33 +69,71 @@ void ResizingList::setTextFontSize(uint v)
     relayout();
 }
 
-QColor ResizingList::textColor() const { return delegate()->text_color; }
+QColor ResizingList::textColor() const
+{ return delegate()->text_color; }
 
-void ResizingList::setTextColor(QColor v) { delegate()->text_color = v; update(); }
+void ResizingList::setTextColor(QColor v)
+{
+    delegate()->text_color = v;
+    update();
+}
 
-QColor ResizingList::selectionTextColor() const { return delegate()->selection_text_color; }
+QColor ResizingList::selectionTextColor() const
+{ return delegate()->selection_text_color; }
 
-void ResizingList::setSelectionTextColor(QColor v) { delegate()->selection_text_color = v; update(); }
+void ResizingList::setSelectionTextColor(QColor v)
+{
+    delegate()->selection_text_color = v;
+    update();
+}
 
-QBrush ResizingList::selectionBackgroundBrush() const { return delegate()->selection_background_brush; }
+QBrush ResizingList::selectionBackgroundBrush() const
+{ return delegate()->selection_background_brush; }
 
-void ResizingList::setSelectionBackgroundBrush(QBrush val) { delegate()->selection_background_brush = val; update(); }
+void ResizingList::setSelectionBackgroundBrush(QBrush val)
+{
+    QPixmapCache::clear();
+    delegate()->selection_background_brush = val;
+    update();
+}
 
-QBrush ResizingList::selectionBorderBrush() const { return delegate()->selection_border_brush; }
+QBrush ResizingList::selectionBorderBrush() const
+{ return delegate()->selection_border_brush; }
 
-void ResizingList::setSelectionBorderBrush(QBrush val) { delegate()->selection_border_brush = val; update(); }
+void ResizingList::setSelectionBorderBrush(QBrush val)
+{
+    QPixmapCache::clear();
+    delegate()->selection_border_brush = val;
+    update();
+}
 
-double ResizingList::borderRadius() const { return delegate()->selection_border_radius; }
+double ResizingList::borderRadius() const
+{ return delegate()->selection_border_radius; }
 
-void ResizingList::setBorderRadius(double val) { delegate()->selection_border_radius = val; update(); }
+void ResizingList::setBorderRadius(double val)
+{
+    QPixmapCache::clear();
+    delegate()->selection_border_radius = val;
+    update();
+}
 
-double ResizingList::borderWidth() const { return delegate()->selection_border_width; }
+double ResizingList::borderWidth() const
+{ return delegate()->selection_border_width; }
 
-void ResizingList::setBorderWidth(double val) { delegate()->selection_border_width = val; update(); }
+void ResizingList::setBorderWidth(double val)
+{
+    QPixmapCache::clear();
+    delegate()->selection_border_width = val;
+    update();
+}
 
 uint ResizingList::padding() const { return delegate()->padding; }
 
-void ResizingList::setPadding(uint val) { delegate()->padding = val; relayout(); }
+void ResizingList::setPadding(uint val)
+{
+    delegate()->padding = val;
+    relayout();
+}
 
 uint ResizingList::maxItems() const { return maxItems_; }
 
