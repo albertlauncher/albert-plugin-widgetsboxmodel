@@ -369,6 +369,26 @@
      </property>
     </widget>
    </item>
+   <item row="14" column="0">
+    <widget class="QLabel" name="label_winprop">
+     <property name="text">
+      <string>Window properties</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="1">
+    <widget class="QPushButton" name="pushButton_winprop">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Edit</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
