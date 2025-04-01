@@ -149,6 +149,7 @@ void InputLine::setFontSize(uint val)
     auto f = font();
     f.setPointSize(val);
     setFont(f);
+    highlighter_->rehighlight(); // required because it sets hint advance
 
     // setFixedHeight(fontMetrics().lineSpacing() + 2 * (int)document()->documentMargin());
 }
