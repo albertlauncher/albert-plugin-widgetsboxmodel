@@ -90,8 +90,7 @@ static auto addPixelMetricSpinBox(QFormLayout *form_layout,
 }
 
 
-ConfigWidget::ConfigWidget(Plugin &_plugin, Window &_window):
-    plugin(_plugin),
+ConfigWidget::ConfigWidget(Window &_window):
     window(_window)
 {
     Ui::ConfigWidget ui;

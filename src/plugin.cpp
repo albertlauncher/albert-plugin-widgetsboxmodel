@@ -25,7 +25,7 @@ bool Plugin::isVisible() const { return window.isVisible(); }
 
 void Plugin::setVisible(bool visible) { window.setVisible(visible); }
 
-QWidget *Plugin::createFrontendConfigWidget() { return new ConfigWidget(*this, window); }
+QWidget *Plugin::createFrontendConfigWidget() { return new ConfigWidget(window); }
 
 unsigned long long Plugin::winId() const { return window.winId(); }
 

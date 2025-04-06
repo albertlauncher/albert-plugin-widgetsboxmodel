@@ -9,11 +9,10 @@ class ConfigWidget : public QWidget
 {
 public:
 
-    ConfigWidget(Plugin&, Window &);
+    ConfigWidget(Window &);
 
 private:
 
-    Plugin &plugin;
     Window &window;
 
 };
