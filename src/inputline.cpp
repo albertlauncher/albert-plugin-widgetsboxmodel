@@ -64,6 +64,7 @@ public:
 
 InputLine::InputLine(QWidget *parent):
     QPlainTextEdit(parent),
+    trigger_length_(0),
     highlighter_(new TriggerHighlighter(document(), this))
 {
     document()->setDocumentMargin(1); // 0 would be optimal but clips bearing
