@@ -24,6 +24,10 @@ ResultItemsModel::ResultItemsModel(Query &query):
     });
 
     connect(&query, &Query::matchesAdded, this, [this] { endInsertRows(); });
+
+    connect(&query, &Query::dataChanged, this, [this](uint i){
+        emit dataChanged(index(i, 0), index(i, 0));
+    });
 }
 
 QHash<int, QByteArray> ResultItemsModel::roleNames() const
