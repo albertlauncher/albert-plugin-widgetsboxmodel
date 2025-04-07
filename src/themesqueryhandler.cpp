@@ -33,13 +33,11 @@ void ThemesQueryHandler::handleTriggerQuery(Query &query)
     {
         actions.emplace_back("setlight",
                              Window::tr("Use in light mode"),
-                             [&]{ window->setThemeLight({}); },
-                             false);
+                             [&]{ window->setThemeLight({}); });
 
         actions.emplace_back("setdark",
                              Window::tr("Use in dark mode"),
-                             [&]{ window->setThemeDark({}); },
-                             false);
+                             [&]{ window->setThemeDark({}); });
 
         if (window->darkMode())
             std::swap(actions[0], actions[1]);
@@ -62,13 +60,11 @@ void ThemesQueryHandler::handleTriggerQuery(Query &query)
 
             actions.emplace_back("setlight",
                                  Window::tr("Use in light mode"),
-                                 [&]{ window->setThemeLight(name); },
-                                 false);
+                                 [&]{ window->setThemeLight(name); });
 
             actions.emplace_back("setdark",
                                  Window::tr("Use in dark mode"),
-                                 [&]{ window->setThemeDark(name); },
-                                 false);
+                                 [&]{ window->setThemeDark(name); });
 
             if (window->darkMode())
                 std::swap(actions[0], actions[1]);
