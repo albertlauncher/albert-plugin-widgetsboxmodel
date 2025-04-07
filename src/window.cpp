@@ -901,28 +901,32 @@ void Window::onSettingsButtonClick(Qt::MouseButton button)
 void Window::onMatchActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (current_query->activateMatch(index.row(), 0))
-            hide();
+        if (auto should_hide = current_query->activateMatch(index.row(), 0);
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
+                hide();
 }
 
 void Window::onMatchActionActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (current_query->activateMatch(results_list->currentIndex().row(), index.row()))
+        if (auto should_hide = current_query->activateMatch(results_list->currentIndex().row(), index.row());
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
             hide();
 }
 
 void Window::onFallbackActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (current_query->activateFallback(index.row(), 0))
+        if (auto should_hide = current_query->activateFallback(index.row(), 0);
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
             hide();
 }
 
 void Window::onFallbackActionActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (current_query->activateFallback(results_list->currentIndex().row(), index.row()))
+        if (auto should_hide = current_query->activateFallback(results_list->currentIndex().row(), index.row());
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
             hide();
 }
 
