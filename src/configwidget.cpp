@@ -96,34 +96,39 @@ ConfigWidget::ConfigWidget(Window &_window):
     Ui::ConfigWidget ui;
     ui.setupUi(this);
 
-    for (const auto&[name, path] : window.themes)
+    ui.comboBox_theme_light->addItem(tr("System"), QString());
+    ui.comboBox_theme_light->insertSeparator(1);
+    for (const auto&[name, _] : window.themes)
     {
-        ui.comboBox_theme_light->addItem(name, path);
+        ui.comboBox_theme_light->addItem(name, name);
         if (name == window.themeLight())
             ui.comboBox_theme_light->setCurrentIndex(ui.comboBox_theme_light->count()-1);
     }
     connect(ui.comboBox_theme_light,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, [this, comboBox_themes=ui.comboBox_theme_light](int i)
-            { window.setThemeLight(comboBox_themes->itemText(i)); });
+            { window.setThemeLight(comboBox_themes->itemData(i).toString()); });
 
     connect(&window, &Window::themeLightChanged, this, [cb=ui.comboBox_theme_light](QString theme){
-        if (auto i = cb->findText(theme); i != -1)
+        if (auto i = cb->findData(theme); i != -1)
             cb->setCurrentIndex(i);
     });
 
-    for (const auto&[name, path] : window.themes)
+
+    ui.comboBox_theme_dark->addItem(tr("System"), QString());
+    ui.comboBox_theme_dark->insertSeparator(1);
+    for (const auto&[name, _] : window.themes)
     {
-        ui.comboBox_theme_dark->addItem(name, path);
+        ui.comboBox_theme_dark->addItem(name, name);
         if (name == window.themeDark())
             ui.comboBox_theme_dark->setCurrentIndex(ui.comboBox_theme_dark->count()-1);
     }
     connect(ui.comboBox_theme_dark,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, [this, comboBox_themes=ui.comboBox_theme_dark](int i)
-            { window.setThemeDark(comboBox_themes->itemText(i)); });
+            { window.setThemeDark(comboBox_themes->itemData(i).toString()); });
     connect(&window, &Window::themeDarkChanged, this, [cb=ui.comboBox_theme_dark](QString theme){
-        if (auto i = cb->findText(theme); i != -1)
+        if (auto i = cb->findData(theme); i != -1)
             cb->setCurrentIndex(i);
     });
 
