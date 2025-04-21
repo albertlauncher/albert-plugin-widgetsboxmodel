@@ -1,34 +1,13 @@
 // Copyright (c) 2022-2025 Manuel Schneider
 
 #include "configwidget.h"
-#include "window.h"
-#include "plugin.h"
 #include "ui_configwidget.h"
+#include "window.h"
 #include <QGroupBox>
+#include <albert/widgets/widgets.h>
+using namespace albert::util;
 using namespace albert;
 using namespace std;
-
-
-template<typename T>
-static void bind(T *t,
-                 QCheckBox *check_box,
-                 bool (T::*get)() const,
-                 void (T::*set)(bool))
-{
-    check_box->setChecked((t->*get)());
-    QObject::connect(check_box, &QCheckBox::toggled, t, set);
-}
-
-template<typename T>
-static void bind(T *t,
-                 QCheckBox *check_box,
-                 bool (T::*get)() const,
-                 void (T::*set)(bool),
-                 void (T::*sig)(bool))
-{
-    bind(t, check_box, get, set);
-    QObject::connect(t, sig, check_box, &QCheckBox::setChecked);
-}
 
 template<typename T>
 static QSpinBox *createSpinBox(QFormLayout *form_layout,
@@ -132,35 +111,41 @@ ConfigWidget::ConfigWidget(Window &_window):
             cb->setCurrentIndex(i);
     });
 
-    ::bind(&window, ui.checkBox_onTop,
-           &Window::alwaysOnTop,
-           &Window::setAlwaysOnTop,
-           &Window::alwaysOnTopChanged);
+    widgets::bind(ui.checkBox_onTop,
+                  &window,
+                  &Window::alwaysOnTop,
+                  &Window::setAlwaysOnTop,
+                  &Window::alwaysOnTopChanged);
 
-    ::bind(&window, ui.checkBox_clearOnHide,
-           &Window::clearOnHide,
-           &Window::setClearOnHide,
-           &Window::clearOnHideChanged);
+    widgets::bind(ui.checkBox_clearOnHide,
+                  &window,
+                  &Window::clearOnHide,
+                  &Window::setClearOnHide,
+                  &Window::clearOnHideChanged);
 
-    ::bind(&window, ui.checkBox_scrollbar,
-           &Window::displayScrollbar,
-           &Window::setDisplayScrollbar,
-           &Window::displayScrollbarChanged);
+    widgets::bind(ui.checkBox_scrollbar,
+                  &window,
+                  &Window::displayScrollbar,
+                  &Window::setDisplayScrollbar,
+                  &Window::displayScrollbarChanged);
 
-    ::bind(&window, ui.checkBox_followCursor,
-           &Window::followCursor,
-           &Window::setFollowCursor,
-           &Window::followCursorChanged);
+    widgets::bind(ui.checkBox_followCursor,
+                  &window,
+                  &Window::followCursor,
+                  &Window::setFollowCursor,
+                  &Window::followCursorChanged);
 
-    ::bind(&window, ui.checkBox_hideOnFocusOut,
-           &Window::hideOnFocusLoss,
-           &Window::setHideOnFocusLoss,
-           &Window::hideOnFocusLossChanged);
+    widgets::bind(ui.checkBox_hideOnFocusOut,
+                  &window,
+                  &Window::hideOnFocusLoss,
+                  &Window::setHideOnFocusLoss,
+                  &Window::hideOnFocusLossChanged);
 
-    ::bind(&window, ui.checkBox_history_search,
-           &Window::historySearchEnabled,
-           &Window::setHistorySearchEnabled,
-           &Window::historySearchEnabledChanged);
+    widgets::bind(ui.checkBox_history_search,
+                  &window,
+                  &Window::historySearchEnabled,
+                  &Window::setHistorySearchEnabled,
+                  &Window::historySearchEnabledChanged);
 
     ui.spinBox_results->setValue((int)window.maxResults());
     connect(ui.spinBox_results, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -168,24 +153,28 @@ ConfigWidget::ConfigWidget(Window &_window):
     connect(&window, &Window::maxResultsChanged,
             ui.spinBox_results, &QSpinBox::setValue);
 
-    ::bind(&window, ui.checkBox_quit_on_close,
-           &Window::quitOnClose,
-           &Window::setQuitOnClose,
-           &Window::quitOnCloseChanged);
+    widgets::bind(ui.checkBox_quit_on_close,
+                  &window,
+                  &Window::quitOnClose,
+                  &Window::setQuitOnClose,
+                  &Window::quitOnCloseChanged);
 
-    ::bind(&window, ui.checkBox_input_method,
-           &Window::disableInputMethod,
-           &Window::setDisableInputMethod);
+    widgets::bind(ui.checkBox_input_method,
+                  &window,
+                  &Window::disableInputMethod,
+                  &Window::setDisableInputMethod);
 
-    ::bind(&window, ui.checkBox_center,
-           &Window::showCentered,
-           &Window::setShowCentered,
-           &Window::showCenteredChanged);
+    widgets::bind(ui.checkBox_center,
+                  &window,
+                  &Window::showCentered,
+                  &Window::setShowCentered,
+                  &Window::showCenteredChanged);
 
-    ::bind(&window, ui.checkBox_debug,
-           &Window::debugMode,
-           &Window::setDebugMode,
-           &Window::debugModeChanged);
+    widgets::bind(ui.checkBox_debug,
+                  &window,
+                  &Window::debugMode,
+                  &Window::setDebugMode,
+                  &Window::debugModeChanged);
 
     connect(ui.pushButton_winprop, &QPushButton::pressed, this, [this]
     {
