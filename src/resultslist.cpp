@@ -9,6 +9,7 @@
 #include <albert/iconprovider.h>
 using namespace albert;
 using namespace std;
+using namespace util;
 
 
 class ResultsListDelegate : public ItemDelegateBase

@@ -47,7 +47,7 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
     void inputMethodEvent(QInputMethodEvent *event) override;
 
-    albert::InputHistory history_;
+    albert::util::InputHistory history_;
     QString completion_;
     QString synopsis_;
     QString user_text_;

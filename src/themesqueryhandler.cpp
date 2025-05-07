@@ -7,6 +7,7 @@
 #include <albert/standarditem.h>
 using namespace albert;
 using namespace std;
+using namespace util;
 
 ThemesQueryHandler::ThemesQueryHandler(Window *w) : window(w) {}
 

@@ -31,6 +31,7 @@
 #include <albert/pluginloader.h>
 #include <albert/pluginmetadata.h>
 #include <albert/query.h>
+#include <albert/widgetsutil.h>
 using namespace albert;
 using namespace std;
 
@@ -984,8 +985,7 @@ void Window::applyTheme(const QString& name)
         } catch (const runtime_error &e) {
             applyTheme(Theme());
             WARN << e.what();
-            albert::warning(QString("%1:%2\n\n%3")
-                                .arg(tr("Failed loading theme"), name, e.what()));
+            util::warning(QString("%1:%2\n\n%3").arg(tr("Failed loading theme"), name, e.what()));
         }
     }
 }
