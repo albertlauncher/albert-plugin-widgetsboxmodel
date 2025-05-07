@@ -583,11 +583,11 @@ void Window::initializeStatemachine()
 
     addTransition(s_settings_button_hidden, s_settings_button_highlight, SettingsButtonEnter);
 
-    addTransition(s_settings_button_hidden, s_settings_button_highlight, QueryBusy,
-                  [this] { return settings_button->isVisible(); });
+    addTransition(s_settings_button_hidden, s_settings_button_highlight, this, &Window::queryActiveChanged,
+                  [this] { return current_query->isActive() && settings_button->isVisible(); });
 
-    addTransition(s_settings_button_hidden, s_settings_button_highlight_delay, QueryBusy,
-                  [this] { return settings_button->isHidden(); });
+    addTransition(s_settings_button_hidden, s_settings_button_highlight_delay, this, &Window::queryActiveChanged,
+                  [this] { return current_query->isActive() && settings_button->isHidden(); });
 
 
     // settingsbutton visible ->
@@ -596,16 +596,17 @@ void Window::initializeStatemachine()
 
     addTransition(s_settings_button_visible, s_settings_button_highlight, SettingsButtonEnter);
 
-    addTransition(s_settings_button_visible, s_settings_button_highlight, QueryBusy);
+    addTransition(s_settings_button_visible, s_settings_button_highlight, this, &Window::queryActiveChanged,
+                  [this]{ return current_query->isActive(); });
 
 
     // settingsbutton highlight ->
 
-    addTransition(s_settings_button_highlight, s_settings_button_hidden, QueryIdle,
-                  [this] { return !input_frame->underMouse() && !settings_button->underMouse(); });
+    addTransition(s_settings_button_highlight, s_settings_button_hidden, this, &Window::queryActiveChanged,
+                  [this] { return !current_query->isActive() && !input_frame->underMouse() && !settings_button->underMouse(); });
 
-    addTransition(s_settings_button_highlight, s_settings_button_visible, QueryIdle,
-                  [this] { return input_frame->underMouse() && !settings_button->underMouse(); });
+    addTransition(s_settings_button_highlight, s_settings_button_visible, this, &Window::queryActiveChanged,
+                  [this] { return !current_query->isActive() && input_frame->underMouse() && !settings_button->underMouse(); });
 
     addTransition(s_settings_button_highlight, s_settings_button_visible, SettingsButtonLeave,
                   [this] { return input_frame->underMouse(); });
@@ -623,32 +624,37 @@ void Window::initializeStatemachine()
 
     addTransition(s_settings_button_highlight_delay, s_settings_button_highlight, SettingsButtonEnter);
 
-    addTransition(s_settings_button_highlight_delay, s_settings_button_hidden, QueryIdle);
+    addTransition(s_settings_button_highlight_delay, s_settings_button_hidden, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive(); });
 
 
     // settingsbutton spin
 
-    addTransition(s_settings_button_slow, s_settings_button_fast, QueryBusy);
+    addTransition(s_settings_button_slow, s_settings_button_fast, this, &Window::queryActiveChanged,
+                  [this]{ return current_query->isActive(); });
 
-    addTransition(s_settings_button_fast, s_settings_button_slow, QueryIdle);
+    addTransition(s_settings_button_fast, s_settings_button_slow, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive(); });
 
 
     // Query
 
-    addTransition(s_results_query_unset, s_results_query_set, QuerySet);
+    addTransition(s_results_query_unset, s_results_query_set, this, &Window::queryChanged,
+                  [this]{ return current_query; });
 
-    addTransition(s_results_query_set, s_results_query_unset, QueryUnset);
+    addTransition(s_results_query_set, s_results_query_unset, this, &Window::queryChanged,
+                  [this]{ return !current_query; });
 
 
     // hidden ->
 
-    addTransition(s_results_hidden, s_results_matches, QueryHaveMatches);
+    addTransition(s_results_hidden, s_results_matches, this, &Window::queryHasMatches);
 
     addTransition(s_results_hidden, s_results_fallbacks, ShowFallbacks,
                   [this]{ return haveFallbacks(); });
 
-    addTransition(s_results_hidden, s_results_fallbacks, QueryIdle,
-                  [this]{ return haveFallbacks() && !current_query->isTriggered(); });
+    addTransition(s_results_hidden, s_results_fallbacks, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
 
 
     // disabled ->
@@ -656,18 +662,19 @@ void Window::initializeStatemachine()
     addTransition(s_results_disabled, s_results_hidden,
                   display_delay_timer, &QTimer::timeout);
 
-    addTransition(s_results_disabled, s_results_matches, QueryHaveMatches);
+    addTransition(s_results_disabled, s_results_matches, this, &Window::queryHasMatches);
 
-    addTransition(s_results_disabled, s_results_hidden, QueryIdle,
-                  [this]{ return !haveFallbacks() || current_query->isTriggered(); });
+    addTransition(s_results_disabled, s_results_hidden, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive() && (!haveFallbacks() || current_query->isTriggered()); });
 
-    addTransition(s_results_disabled, s_results_fallbacks, QueryIdle,
-                  [this]{ return haveFallbacks() && !current_query->isTriggered(); });
+    addTransition(s_results_disabled, s_results_fallbacks, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
 
 
     // matches ->
 
-    addTransition(s_results_matches, s_results_disabled, QuerySet);
+    addTransition(s_results_matches, s_results_disabled, this, &Window::queryChanged,
+                  [this]{ return current_query; });
 
     addTransition(s_results_matches, s_results_fallbacks, ShowFallbacks,
                   [this]{ return haveFallbacks(); });
@@ -684,7 +691,8 @@ void Window::initializeStatemachine()
 
     // fallbacks ->
 
-    addTransition(s_results_fallbacks, s_results_disabled, QuerySet);
+    addTransition(s_results_fallbacks, s_results_disabled, this, &Window::queryChanged,
+                  [this]{ return current_query; });
 
     addTransition(s_results_fallbacks, s_results_hidden, HideFallbacks,
                   [this]{ return !haveMatches() && current_query->isActive(); });
@@ -766,6 +774,8 @@ void Window::initializeStatemachine()
     QObject::connect(s_results_query_unset, &QState::entered, this, [this]{
         setModelDeleteSelection(results_list, nullptr);
         input_line->removeEventFilter(results_list);
+        results_list->hide();
+        actions_list->hide();
     });
 
     QObject::connect(s_results_query_set, &QState::entered, this, [this]{
@@ -938,14 +948,10 @@ void Window::setInput(const QString &text) { input_line->setText(text); }
 void Window::setQuery(Query *q)
 {
     if(current_query)
-    {
         disconnect(current_query, nullptr, this, nullptr);
-        if (current_query->isActive())  // for statemachine integrity
-            postCustomEvent(QueryIdle);
-    }
 
     current_query = q;
-    postCustomEvent(current_query ? QuerySet : QueryUnset);
+    emit queryChanged(q);
 
     if(q)
     {
@@ -954,10 +960,11 @@ void Window::setQuery(Query *q)
         input_line->setCompletion();
 
         connect(current_query, &Query::matchesAdded,
-                this, [this]{ postCustomEvent(QueryHaveMatches); });
+                this, &Window::queryHasMatches,
+                Qt::SingleShotConnection);
 
         connect(current_query, &Query::activeChanged,
-                this, [this](bool a){ postCustomEvent(a ? QueryBusy : QueryIdle); });
+                this, &Window::queryActiveChanged);
     }
 }
 
@@ -1060,24 +1067,6 @@ bool Window::event(QEvent *event)
     else if (event->type() == QEvent::Hide)
     {
         plugin.state()->setValue(keys.window_position, pos());
-
-        /*
-         * Prevent the flicker when the window is shown
-         *
-         * Qt sends a resize event when the window is shown.
-         *
-         * When the window was expanded on hide the resize happens on show which introduces ugly
-         * flicker. Force the resize to happen before the window is hidden.
-         *
-         * This may be removed when the frontend does not use the input changed > set query smell
-         * anymore.
-         */
-        setQuery(nullptr);
-        // Setting the query seems not to be sufficient. Hide the lists manually.
-        results_list->hide();
-        actions_list->hide();
-        // looks like the layoutsystem is not synchronous
-        QCoreApplication::processEvents();
 
         QPixmapCache::clear();
 

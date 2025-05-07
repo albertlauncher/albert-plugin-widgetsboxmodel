@@ -114,11 +114,6 @@ private:
         SettingsButtonLeave,
         InputFrameEnter,
         InputFrameLeave,
-        QueryUnset,
-        QuerySet,
-        QueryBusy,
-        QueryIdle,
-        QueryHaveMatches
     };
 
     struct Event : public QEvent {
@@ -131,6 +126,9 @@ signals:
 
     void inputChanged(QString);
     void visibleChanged(bool);
+    void queryChanged(albert::Query*);
+    void queryActiveChanged(bool);  // Convenience signal to avoid reconnects
+    void queryHasMatches();  // Convenience signal to avoid reconnects
 
 public:
 
