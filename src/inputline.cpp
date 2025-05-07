@@ -36,7 +36,10 @@ public:
         block_rehighlight = true;
         formatted_text_length = 0.0;
 
-        if (input_line.trigger_length_ && text.length() >= input_line.trigger_length_)
+        // Needed because trigger length is set async and may exceed the text length
+        const auto highlight_length = std::min(input_line.trigger_length_, (uint)text.length());
+
+        if (highlight_length)
         {
             auto f = input_line.font();
             f.setWeight(QFont::Light);
@@ -45,19 +48,20 @@ public:
             QTextCharFormat fmt;
             fmt.setFont(f);
             fmt.setForeground(input_line.trigger_color_);
-            setFormat(0, input_line.trigger_length_, fmt);
+            setFormat(0, highlight_length, fmt);
 
             formatted_text_length +=
-                QFontMetricsF(f).horizontalAdvance(text.left(input_line.trigger_length_));
+                QFontMetricsF(f).horizontalAdvance(text.left(highlight_length));
 
-            setFormat(input_line.trigger_length_,
-                      text.length()-input_line.trigger_length_,
+            setFormat(highlight_length,
+                      text.length() - highlight_length,
                       input_line.palette().text().color());
         }
 
-        formatted_text_length
-            += QFontMetricsF(input_line.font())
-                   .horizontalAdvance(text.sliced(input_line.trigger_length_));
+        if (text.length() > highlight_length)
+            formatted_text_length
+                += QFontMetricsF(input_line.font())
+                       .horizontalAdvance(text.sliced(highlight_length));
     }
 };
 
