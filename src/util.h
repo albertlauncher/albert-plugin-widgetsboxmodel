@@ -8,5 +8,3 @@ template<typename T> class QList;
 bool haveDarkSystemPalette();
 
 void setStyleRecursive(QWidget *widget, QStyle *style);
-
-QList<QWidget*> getParents(QWidget* widget);

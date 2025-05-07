@@ -18,14 +18,3 @@ void setStyleRecursive(QWidget *widget, QStyle *style)
     for (auto child : widget->findChildren<QWidget*>())
         setStyleRecursive(child, style);
 }
-
-QList<QWidget *> getParents(QWidget *widget)
-{
-    QList<QWidget*> parents;
-    while (widget->parentWidget())
-    {
-        widget = widget->parentWidget();
-        parents.append(widget);
-    }
-    return parents;
-}

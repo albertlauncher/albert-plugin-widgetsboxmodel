@@ -3,14 +3,14 @@
 #include "actionslist.h"
 #include "debugoverlay.h"
 #include "frame.h"
-#include "util.h"
 #include "inputline.h"
-#include "theme.h"
 #include "resizinglist.h"
 #include "resultitemmodel.h"
 #include "resultslist.h"
 #include "settingsbutton.h"
 #include "statetransitions.h"
+#include "theme.h"
+#include "util.h"
 #include "window.h"
 #include <QApplication>
 #include <QBoxLayout>
@@ -34,6 +34,7 @@
 #include <albert/widgetsutil.h>
 using namespace albert;
 using namespace std;
+using namespace util;
 
 namespace  {
 
@@ -992,7 +993,7 @@ void Window::applyTheme(const QString& name)
         } catch (const runtime_error &e) {
             applyTheme(Theme());
             WARN << e.what();
-            util::warning(QString("%1:%2\n\n%3").arg(tr("Failed loading theme"), name, e.what()));
+            warning(QString("%1:%2\n\n%3").arg(tr("Failed loading theme"), name, e.what()));
         }
     }
 }
@@ -1098,13 +1099,10 @@ bool Window::event(QEvent *event)
         // update the internal underMouse property on show if the window is has been hidden and the
         // mouse pointer moved outside the widget.
         //
-        if (auto w = QApplication::widgetAt(QCursor::pos()); w)
-        {
-            QEvent synth(QEvent::Enter);
+        QEvent synth(QEvent::Enter);
+        for (auto w = QApplication::widgetAt(QCursor::pos()); w;  w = w->parentWidget())
             QApplication::sendEvent(w, &synth);
-            for (auto p : getParents(w))
-                QApplication::sendEvent(p, &synth);
-        }
+
     }
 
     else if (event->type() == QEvent::WindowDeactivate)
@@ -1114,13 +1112,9 @@ bool Window::event(QEvent *event)
         // update the internal underMouse property on show if the window is has been hidden and the
         // mouse pointer moved outside the widget.
         //
-        if (auto w = QApplication::widgetAt(QCursor::pos()); w)
-        {
-            QEvent synth(QEvent::Leave);
+        QEvent synth(QEvent::Leave);
+        for (auto w = QApplication::widgetAt(QCursor::pos()); w;  w = w->parentWidget())
             QApplication::sendEvent(w, &synth);
-            for (auto p : getParents(w))
-                QApplication::sendEvent(p, &synth);
-        }
 
         if(hideOnFocusLoss_)
             setVisible(false);
