@@ -96,12 +96,15 @@ InputLine::InputLine(QWidget *parent):
     //     setFixedHeight(height);
     // };
 
-    connect(document()->documentLayout(),
-            &QAbstractTextDocumentLayout::documentSizeChanged,
-            this,
-            [this](const QSizeF &newSize){
+    connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
+            this,[this](const QSizeF &newSize)
+            {
+                // Looks like there is some more space needed. The scrollarea reserves space in full
+                // multiples of lines. Without the + 1 an additional line is reserved. Maybe some
+                // rounding issues or such.
                 setFixedHeight((int)newSize.height() * fontMetrics().lineSpacing()
-                               + 2 * (int)document()->documentMargin()); });
+                               + 2 * (int)document()->documentMargin() + 1); // see comment above
+            });
 }
 
 const QString &InputLine::synopsis() const { return synopsis_; }
