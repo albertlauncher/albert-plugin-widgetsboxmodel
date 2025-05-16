@@ -293,7 +293,7 @@ void InputLine::keyPressEvent(QKeyEvent *event)
         {
             QTextCursor c = textCursor();
             c.beginEditBlock();
-            c.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+            c.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
             c.removeSelectedText();
             c.endEditBlock();
         }
