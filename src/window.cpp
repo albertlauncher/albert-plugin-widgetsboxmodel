@@ -1197,15 +1197,6 @@ bool Window::eventFilter(QObject *watched, QEvent *event)
                 }
                 break;
 
-            case Qt::Key_Comma:{
-                if (ke->modifiers() == Qt::ControlModifier || ke->modifiers() == Qt::AltModifier){
-                    showSettings();
-                    setVisible(false);
-                    return true;
-                }
-                break;
-            }
-
             case Qt::Key_Escape:
                 setVisible(false);
                 break;
