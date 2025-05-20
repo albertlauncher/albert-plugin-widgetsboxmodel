@@ -261,7 +261,7 @@ void InputLine::hideEvent(QHideEvent *event)
 {
     history_.add(text());
     history_.resetIterator();
-    user_text_.clear();
+    user_text_ = text();
 
     if (clear_on_hide)
         clear();
