@@ -197,9 +197,8 @@ void InputLine::next()
 
 void InputLine::previous()
 {
-    if (auto t = history_.prev(history_search ? user_text_ : QString());
-        !t.isNull())
-        setText(t);
+    auto t = history_.prev(history_search ? user_text_ : QString());
+    setText(t.isNull() ? user_text_ : t);  // restore text at end
 }
 
 void InputLine::paintEvent(QPaintEvent *event)
