@@ -184,14 +184,8 @@ void InputLine::setHintColor(const QColor &val)
 
 void InputLine::next()
 {
-    auto t = history_.next(history_search ? user_text_ : QString());
-
-    // Without ClearOnHide the text is already in the input
-    // I.e. the first item in history equals the input text
-    if (t == text())
-        t = history_.next(history_search ? user_text_ : QString());
-
-    if (!t.isNull())
+    if (auto t = history_.next(history_search ? user_text_ : QString());
+        !t.isNull())
         setText(t);
 }
 
