@@ -43,7 +43,10 @@ static const struct {
     using ColorRole = QPalette::ColorRole;
 
     const double    settings_button_rps_idle = 0.2;
-    const double    settings_button_rps_busy = 0.7;
+    const double    settings_button_rps_busy = 0.5;
+    const unsigned  settings_button_rps_animation_duration = 3000;
+    const unsigned  settings_button_fade_animation_duration = 500;
+    const unsigned  settings_button_highlight_animation_duration = 1000;
 
     const bool      always_on_top                               = true;
     const bool      centered                                    = true;
@@ -740,7 +743,7 @@ void Window::initializeStatemachine()
         color_animation_ = make_unique<QPropertyAnimation>(settings_button, "color");
         color_animation_->setEndValue(settings_button_color_);
         color_animation_->setEasingCurve(QEasingCurve::OutQuad);
-        color_animation_->setDuration(500);
+        color_animation_->setDuration(defaults.settings_button_fade_animation_duration);
         color_animation_->start();
     });
 
@@ -749,7 +752,7 @@ void Window::initializeStatemachine()
         color_animation_ = make_unique<QPropertyAnimation>(settings_button, "color");
         color_animation_->setEndValue(settings_button_color_highlight_);
         color_animation_->setEasingCurve(QEasingCurve::OutQuad);
-        color_animation_->setDuration(500);
+        color_animation_->setDuration(defaults.settings_button_highlight_animation_duration);
         color_animation_->start();
     });
 
@@ -757,7 +760,7 @@ void Window::initializeStatemachine()
         speed_animation_ = make_unique<QPropertyAnimation>(settings_button, "speed");
         speed_animation_->setEndValue(defaults.settings_button_rps_idle);
         speed_animation_->setEasingCurve(QEasingCurve::OutQuad);
-        speed_animation_->setDuration(3000);
+        speed_animation_->setDuration(defaults.settings_button_rps_animation_duration);
         speed_animation_->start();
     });
 
@@ -765,7 +768,7 @@ void Window::initializeStatemachine()
         speed_animation_ = make_unique<QPropertyAnimation>(settings_button, "speed");
         speed_animation_->setEndValue(defaults.settings_button_rps_busy);
         speed_animation_->setEasingCurve(QEasingCurve::InOutQuad);
-        speed_animation_->setDuration(1000);
+        speed_animation_->setDuration(defaults.settings_button_rps_animation_duration);
         speed_animation_->start();
     });
 
