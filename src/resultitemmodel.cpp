@@ -18,16 +18,6 @@ using namespace std;
 ResultItemsModel::ResultItemsModel(Query &query):
     query_(query)
 {
-    connect(&query, &Query::matchesAboutToBeAdded, this, [&, this](uint count){
-        Q_ASSERT(count > 0);
-        beginInsertRows({}, query.matches().size(), query.matches().size() + count - 1);
-    });
-
-    connect(&query, &Query::matchesAdded, this, [this] { endInsertRows(); });
-
-    connect(&query, &Query::dataChanged, this, [this](uint i){
-        emit dataChanged(index(i, 0), index(i, 0));
-    });
 }
 
 QHash<int, QByteArray> ResultItemsModel::roleNames() const
@@ -90,6 +80,20 @@ QVariant ResultItemsModel::getResultItemData(const ResultItem &result_item, int 
 
 // -------------------------------------------------------------------------------------------------
 
+MatchItemsModel::MatchItemsModel(Query &query):
+    ResultItemsModel(query)
+{
+    connect(&query, &Query::matchesAboutToBeAdded, this, [&, this](uint count){
+        Q_ASSERT(count > 0);
+        beginInsertRows({}, query.matches().size(), query.matches().size() + count - 1);
+    });
+
+    connect(&query, &Query::matchesAdded, this, [this] { endInsertRows(); });
+
+    connect(&query, &Query::dataChanged, this, [this](uint i){
+        emit dataChanged(index(i, 0), index(i, 0));
+    });
+}
 
 int MatchItemsModel::rowCount(const QModelIndex &) const
 { return (int)query_.matches().size(); }

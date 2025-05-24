@@ -18,9 +18,11 @@ public:
 
     TriggerHighlighter(QTextDocument *d, InputLine *i) : QSyntaxHighlighter(d), input_line(*i) {}
 
-    // QPlainTextEdit triggers rehighlight on keypress. At this point trigger_lenght is not set yet.
-    // We want to make sure that we are in contol over the rehighlights. Also rehighlight emits
-    // QPlainTextEdit:textChanged which has to be avoided. Intended shadowing.
+    // QPlainTextEdit::keyPressEvent triggers rehighlight.
+    // At this point trigger_lenght is not set yet.
+    // We want to make sure that we are in contol over the rehighlights.
+    // Also rehighlight emits QPlainTextEdit:textChanged which has to be avoided.
+    // Intended shadowing.
     void rehighlight()
     {
         block_rehighlight = false;
@@ -268,18 +270,6 @@ void InputLine::hideEvent(QHideEvent *event)
 void InputLine::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
-
-    case Qt::Key_Tab:
-        if (!completion_.isEmpty())
-            setText(text().left(trigger_length_) + completion_);
-        return;
-
-    case Qt::Key_Return:
-    case Qt::Key_Enter:
-        if (event->modifiers().testFlag(Qt::ShiftModifier))
-            insertPlainText("\n");
-        return;
-
 #if defined Q_OS_MACOS
     case Qt::Key_Backspace:
         if (event->modifiers().testFlag(Qt::ControlModifier))
@@ -290,15 +280,10 @@ void InputLine::keyPressEvent(QKeyEvent *event)
             c.removeSelectedText();
             c.endEditBlock();
         }
-        break;
 #endif
-
     default:
-        break;
+        QPlainTextEdit::keyPressEvent(event);
     }
-
-    // Triggers unwanted rehighlight! See InputLine::TriggerHighlighter::rehighlight
-    QPlainTextEdit::keyPressEvent(event);
 }
 
 void InputLine::inputMethodEvent(QInputMethodEvent *event)

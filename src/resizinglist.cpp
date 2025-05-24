@@ -42,6 +42,7 @@ ResizingList::ResizingList(QWidget *parent) : QListView(parent)
 {
     connect(this, &ResizingList::clicked, this, &ResizingList::activated);
 
+    setEditTriggers(NoEditTriggers);
     setFrameShape(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 //    setLayoutMode(LayoutMode::Batched);
@@ -172,41 +173,6 @@ void ResizingList::setModel(QAbstractItemModel *m)
         current_row_count_ = 0;
 
     updateGeometry();
-}
-
-bool ResizingList::eventFilter(QObject*, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress) {
-        auto* keyEvent = static_cast<QKeyEvent*>(event);
-        switch (keyEvent->key()) {
-
-            // Navigation
-            case Qt::Key_Up:
-            case Qt::Key_Down:
-            case Qt::Key_PageUp:
-            case Qt::Key_PageDown:
-            // case Qt::Key_Home:  Interferes with the inputline
-            // case Qt::Key_End:
-                return QListView::event(event);
-
-            case Qt::Key_O:
-                if (keyEvent->modifiers().testFlag(Qt::ControlModifier)){
-                    emit activated(currentIndex());
-                    return true;
-                }
-                break;
-
-            case Qt::Key_Enter:
-            case Qt::Key_Return:
-                if (!keyEvent->modifiers().testFlag(Qt::ShiftModifier)   // shift enter needed by input line
-                    || keyEvent->modifiers().testFlag(Qt::ControlModifier))   // but control overrides
-                {
-                    emit activated(currentIndex());
-                    return true;
-                }
-        }
-    }
-    return false;
 }
 
 void ResizingList::onUpdateSelectionAndSize()

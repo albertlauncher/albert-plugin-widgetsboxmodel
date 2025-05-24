@@ -211,19 +211,13 @@ Window::Window(PluginInstance &p) :
     results_list(new ResultsList(this)),
     actions_list(new ActionsList(this)),
     dark_mode(haveDarkSystemPalette()),
-    current_query{nullptr}
+    current_query{nullptr},
+    edit_mode_(false)
 {
     initializeUi();
     initializeProperties();
     initializeWindowActions();
     initializeStatemachine();
-
-    input_frame->installEventFilter(this);
-    settings_button->installEventFilter(this);
-    results_list->hide();
-    actions_list->hide();
-    actions_list->setMaxItems(100);
-    settings_button->hide();
 
     // Reproducible UX
     auto *style = QStyleFactory::create("Fusion");
@@ -296,6 +290,19 @@ void Window::initializeUi()
 
     actions_list->setFocusPolicy(Qt::NoFocus);
     actions_list->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
+
+
+    // Misc
+
+    input_line->installEventFilter(this);
+    input_frame->installEventFilter(this);  // Proper leave enter events
+    settings_button->installEventFilter(this);  // Proper leave enter events
+    results_list->installEventFilter(this);  // Edge move detection
+
+    settings_button->hide();
+    results_list->hide();
+    actions_list->hide();
+    actions_list->setMaxItems(100);
 }
 
 void Window::initializeProperties()
@@ -481,6 +488,15 @@ void Window::initializeWindowActions()
     connect(this, &Window::clearOnHideChanged, a, &QAction::setChecked);
     addAction(a);
 
+    a = new QAction(tr("Input edit mode"), this);
+    a->setShortcuts({QKeySequence("Meta+e")});
+    a->setShortcutVisibleInContextMenu(true);
+    a->setCheckable(true);
+    a->setChecked(editModeEnabled());
+    connect(a, &QAction::toggled, this, &Window::setEditModeEnabled);
+    connect(this, &Window::editModeEnabledChanged, a, &QAction::setChecked);
+    addAction(a);
+
     a = new QAction(tr("Debug mode"), this);
     a->setShortcuts({QKeySequence("Meta+d")});
     a->setShortcutVisibleInContextMenu(true);
@@ -491,12 +507,18 @@ void Window::initializeWindowActions()
     addAction(a);
 }
 
-static void setModelDeleteSelection(QAbstractItemView *v, QAbstractItemModel *m)
+static void setModelMemorySafe(QAbstractItemView *v, QAbstractItemModel *m)
 {
-   // See QAbstractItemView::setModel documentation
-    auto *sm = v->selectionModel();
+    // See QAbstractItemView::setModel documentation
+    auto dm = v->model();
+    auto sm = v->selectionModel();
     v->setModel(m);
-    delete sm;
+    if (m)
+        m->setParent(v);
+    if (sm)
+        delete sm;
+    if (dm)
+        delete dm;
 }
 
 void Window::initializeStatemachine()
@@ -520,23 +542,16 @@ void Window::initializeStatemachine()
     s_settings_button_spin->setInitialState(s_settings_button_slow);
 
     auto s_results = new QState(s_root);
-    auto s_results_query_unset = new QState(s_results);
-    auto s_results_query_set = new QState(s_results);
-    s_results->setInitialState(s_results_query_unset);
+    auto s_results_hidden = new QState(s_results);
+    auto s_results_disabled = new QState(s_results);
+    auto s_results_matches = new QState(s_results);
+    auto s_results_fallbacks = new QState(s_results);
+    s_results->setInitialState(s_results_hidden);
 
-    auto s_results_hidden = new QState(s_results_query_set);
-    auto s_results_disabled = new QState(s_results_query_set);
-    auto s_results_matches = new QState(s_results_query_set);
-    auto s_results_fallbacks = new QState(s_results_query_set);
-    s_results_query_set->setInitialState(s_results_hidden);
-
-    auto s_results_match_items = new QState(s_results_matches);
-    auto s_results_match_actions = new QState(s_results_matches);
-    s_results_matches->setInitialState(s_results_match_items);
-
-    auto s_results_fallback_items = new QState(s_results_fallbacks);
-    auto s_results_fallback_actions = new QState(s_results_fallbacks);
-    s_results_fallbacks->setInitialState(s_results_fallback_items);
+    auto s_actions = new QState(s_root);
+    auto s_actions_hidden = new QState(s_actions);
+    auto s_actions_visible = new QState(s_actions);
+    s_actions->setInitialState(s_actions_hidden);
 
     auto display_delay_timer = new QTimer(this);
     display_delay_timer->setInterval(250);
@@ -551,31 +566,31 @@ void Window::initializeStatemachine()
     // Debug
     //
 
-    // QObject::connect(s_settings_button_hidden, &QState::entered,
-    //                  this, []{ CRIT << "s_settings_button_hidden"; });
-    // QObject::connect(s_settings_button_visible, &QState::entered,
-    //                  this, []{ CRIT << "s_settings_button_visible"; });
-    // QObject::connect(s_settings_button_highlight, &QState::entered,
-    //                  this, []{ CRIT << "s_settings_button_highlight"; });
-    // QObject::connect(s_settings_button_highlight_delay, &QState::entered,
-    //                  this, []{ CRIT << "s_settings_button_highlight_delay"; });
-    // QObject::connect(s_results_query_unset, &QState::entered,
-    //                  this, []{ CRIT << "s_results_query_unset"; });
-    // QObject::connect(s_results_query_set, &QState::entered,
-    //                  this, []{ CRIT << "s_results_query_set"; });
-    // QObject::connect(s_results_hidden, &QState::entered,
-    //                  this, []{ CRIT << "s_results_hidden"; });
-    // QObject::connect(s_results_disabled, &QState::entered,
-    //                  this, []{ CRIT << "s_results_disabled"; });
-    // QObject::connect(s_results_match_items, &QState::entered,
-    //                  this, []{ CRIT << "s_results_match_items"; });
-    // QObject::connect(s_results_match_actions, &QState::entered,
-    //                  this, []{ CRIT << "s_results_match_actions"; });
-    // QObject::connect(s_results_fallback_items, &QState::entered,
-    //                  this, []{ CRIT << "s_results_fallback_items"; });
-    // QObject::connect(s_results_fallback_actions, &QState::entered,
-    //                  this, []{ CRIT << "s_results_fallback_actions"; });
-    // connect(input_line, &InputLine::textChanged, []{ CRIT << "InputLine::textChanged";});
+    // for (auto &[state, name] : initializer_list<pair<QState*, QString>>{
+    //          {s_settings_button_hidden, "SB hidden"},
+    //          {s_settings_button_visible, "SB visible"},
+    //          {s_settings_button_highlight, "SB higlight"},
+    //          {s_settings_button_highlight_delay, "SB delay"},
+    //          {s_settings_button_slow, "SB slow"},
+    //          {s_settings_button_fast, "SB fast"},
+
+    //          {s_results_hidden, "RESULTS hidden"},
+    //          {s_results_disabled, "RESULTS disabled"},
+    //          {s_results_matches, "RESULTS matches"},
+    //          {s_results_fallbacks, "RESULTS fallbacks"},
+
+    //          {s_actions_hidden, "ACTIONS hidden"},
+    //          {s_actions_visible, "ACTIONS visible"}
+    //      })
+    // {
+    //     QObject::connect(state, &QState::entered, this, [name]{ CRIT << ">>>> ENTER" << name; });
+    //     //QObject::connect(state, &QState::exited, this, [name]{ CRIT << "<<<< EXIT" << name; });
+    // }
+
+    // connect(input_line, &InputLine::textChanged, this, []{ CRIT << "InputLine::textChanged";});
+    // connect(this, &Window::queryChanged, this, [](albert::Query*q){ CRIT << "Window::queryChanged" << q;});
+    // connect(this, &Window::queryActiveChanged, this, [](bool b){ CRIT << "Window::queryActiveChanged" << b;});
+    // connect(this, &Window::queryHasMatches, this, []{ CRIT << "Window::queryHasMatches";});
 
     //
     // Transitions
@@ -588,10 +603,10 @@ void Window::initializeStatemachine()
     addTransition(s_settings_button_hidden, s_settings_button_highlight, SettingsButtonEnter);
 
     addTransition(s_settings_button_hidden, s_settings_button_highlight, this, &Window::queryActiveChanged,
-                  [this] { return current_query->isActive() && settings_button->isVisible(); });
+                  [this] { return current_query->isActive() && settings_button->isVisible(); });  // visible ??
 
     addTransition(s_settings_button_hidden, s_settings_button_highlight_delay, this, &Window::queryActiveChanged,
-                  [this] { return current_query->isActive() && settings_button->isHidden(); });
+                  [this] { return current_query->isActive() && settings_button->isHidden(); });  // visible ??
 
 
     // settingsbutton visible ->
@@ -640,16 +655,6 @@ void Window::initializeStatemachine()
     addTransition(s_settings_button_fast, s_settings_button_slow, this, &Window::queryActiveChanged,
                   [this]{ return !current_query->isActive(); });
 
-
-    // Query
-
-    addTransition(s_results_query_unset, s_results_query_set, this, &Window::queryChanged,
-                  [this]{ return current_query; });
-
-    addTransition(s_results_query_set, s_results_query_unset, this, &Window::queryChanged,
-                  [this]{ return !current_query; });
-
-
     // hidden ->
 
     addTransition(s_results_hidden, s_results_matches, this, &Window::queryHasMatches);
@@ -661,21 +666,10 @@ void Window::initializeStatemachine()
                   [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
 
 
-    // disabled ->
-
-    addTransition(s_results_disabled, s_results_hidden,
-                  display_delay_timer, &QTimer::timeout);
-
-    addTransition(s_results_disabled, s_results_matches, this, &Window::queryHasMatches);
-
-    addTransition(s_results_disabled, s_results_hidden, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive() && (!haveFallbacks() || current_query->isTriggered()); });
-
-    addTransition(s_results_disabled, s_results_fallbacks, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
-
-
     // matches ->
+
+    addTransition(s_results_matches, s_results_hidden, this, &Window::queryChanged,
+                  [this]{ return !current_query; });
 
     addTransition(s_results_matches, s_results_disabled, this, &Window::queryChanged,
                   [this]{ return current_query; });
@@ -684,34 +678,58 @@ void Window::initializeStatemachine()
                   [this]{ return haveFallbacks(); });
 
 
-    // match actions <->
-
-    addTransition(s_results_match_items, s_results_match_actions, ShowActions);
-    addTransition(s_results_match_items, s_results_match_actions, ToggleActions);
-
-    addTransition(s_results_match_actions, s_results_match_items, HideActions);
-    addTransition(s_results_match_actions, s_results_match_items, ToggleActions);
-
-
     // fallbacks ->
+
+    addTransition(s_results_fallbacks, s_results_hidden, this, &Window::queryChanged,
+                  [this]{ return !current_query; });
 
     addTransition(s_results_fallbacks, s_results_disabled, this, &Window::queryChanged,
                   [this]{ return current_query; });
 
-    addTransition(s_results_fallbacks, s_results_hidden, HideFallbacks,
-                  [this]{ return !haveMatches() && current_query->isActive(); });
-
     addTransition(s_results_fallbacks, s_results_matches, HideFallbacks,
                   [this]{ return haveMatches(); });
 
+    addTransition(s_results_fallbacks, s_results_hidden, HideFallbacks,
+                  [this]{ return !haveMatches() && current_query->isActive(); });
 
-    // fallback actions <->
 
-    addTransition(s_results_fallback_items, s_results_fallback_actions, ShowActions);
-    addTransition(s_results_fallback_items, s_results_fallback_actions, ToggleActions);
+    // disabled ->
 
-    addTransition(s_results_fallback_actions, s_results_fallback_items, HideActions);
-    addTransition(s_results_fallback_actions, s_results_fallback_items, ToggleActions);
+    addTransition(s_results_disabled, s_results_hidden, this, &Window::queryChanged,
+                  [this]{ return !current_query; });
+
+    addTransition(s_results_disabled, s_results_hidden, display_delay_timer, &QTimer::timeout);
+
+    addTransition(s_results_disabled, s_results_hidden, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive() && (!haveFallbacks() || current_query->isTriggered()); });
+
+    addTransition(s_results_disabled, s_results_fallbacks, this, &Window::queryActiveChanged,
+                  [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
+
+    addTransition(s_results_disabled, s_results_matches, this, &Window::queryHasMatches);
+
+
+    // actions ->
+
+    const auto valid_current_index_has_actions = [=, this]{
+        const auto current_index = results_list->currentIndex();
+        return current_index.isValid()
+               && !current_index.data(ItemRoles::ActionsListRole).toStringList().isEmpty();
+    };
+
+    addTransition(s_actions_hidden, s_actions_visible, ShowActions,
+                  valid_current_index_has_actions);
+
+    addTransition(s_actions_hidden, s_actions_visible, ToggleActions,
+                  valid_current_index_has_actions);
+
+    addTransition(s_actions_visible, s_actions_hidden, HideActions);
+
+    addTransition(s_actions_visible, s_actions_hidden, ToggleActions);
+
+    addTransition(s_actions_visible, s_actions_hidden, s_results_matches, &QState::exited);
+
+    addTransition(s_actions_visible, s_actions_hidden, s_results_fallbacks, &QState::exited);
 
 
     //
@@ -775,63 +793,30 @@ void Window::initializeStatemachine()
 
     // RESULTS
 
-    QObject::connect(s_results_query_unset, &QState::entered, this, [this]{
-        setModelDeleteSelection(results_list, nullptr);
-        input_line->removeEventFilter(results_list);
-        results_list->hide();
-        actions_list->hide();
-    });
-
-    QObject::connect(s_results_query_set, &QState::entered, this, [this]{
-        installEventFilterKeepThisPrioritized(input_line, results_list);
-    });
-
     QObject::connect(s_results_hidden, &QState::entered, this, [this]{
+        keyboard_navigation_receiver = nullptr;
         results_list->hide();
+        setModelMemorySafe(results_list, nullptr);
     });
 
     QObject::connect(s_results_disabled, &QState::entered, this, [this, display_delay_timer]{
+        // disable user interaction withough using enabled property (flickers)
+        results_list->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+        keyboard_navigation_receiver = nullptr;
         display_delay_timer->start();
-        input_line->removeEventFilter(results_list);
     });
 
-    auto hideActions = [this]
-    {
-        actions_list->hide();
-        input_line->removeEventFilter(actions_list);
-        setModelDeleteSelection(actions_list, nullptr);
-    };
-
-    auto showActions = [this]
-    {
-        // if item is selected and has actions display
-        if (auto current_index = results_list->currentIndex();
-            current_index.isValid())
-        {
-            if (auto action_names = current_index.data(ItemRoles::ActionsListRole).toStringList();
-                !action_names.isEmpty())
-            {
-                auto old_m = actions_list->model();
-                auto new_m = new QStringListModel(action_names, actions_list);
-                setModelDeleteSelection(actions_list, new_m);
-                delete old_m;
-
-                installEventFilterKeepThisPrioritized(input_line, actions_list);
-
-                actions_list->show();
-            }
-        }
-    };
+    QObject::connect(s_results_disabled, &QState::exited, this, [this]{
+        // enable user interaction withough using enabled property (flickers)
+        results_list->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    });
 
     QObject::connect(s_results_matches, &QState::entered, this, [this]{
-        results_model = make_unique<MatchItemsModel>(*current_query);
-        setModelDeleteSelection(results_list, results_model.get());
+        keyboard_navigation_receiver = results_list;
+        setModelMemorySafe(results_list, new MatchItemsModel(*current_query));
 
-        installEventFilterKeepThisPrioritized(input_line, results_list);
         connect(results_list, &ResizingList::activated, this, &Window::onMatchActivation);
         connect(actions_list, &ResizingList::activated, this, &Window::onMatchActionActivation);
-
-        results_list->show();
 
         // let selection model currentChanged set input hint
         connect(results_list->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -846,22 +831,19 @@ void Window::initializeStatemachine()
                                           .data(ItemRoles::InputActionRole).toString());
         else
             input_line->setCompletion();
+
+        results_list->show();
     });
 
     QObject::connect(s_results_matches, &QState::exited, this, [this]{
-        input_line->removeEventFilter(results_list);
         disconnect(results_list, &ResizingList::activated, this, &Window::onMatchActivation);
         disconnect(actions_list, &ResizingList::activated, this, &Window::onMatchActionActivation);
     });
 
-    QObject::connect(s_results_match_actions, &QState::entered, this, showActions);
-    QObject::connect(s_results_match_actions, &QState::exited, this, hideActions);
-
     QObject::connect(s_results_fallbacks, &QState::entered, this, [this]{
-        results_model = make_unique<FallbackItemsModel>(*current_query);
-        setModelDeleteSelection(results_list, results_model.get());
+        keyboard_navigation_receiver = results_list;
+        setModelMemorySafe(results_list, new FallbackItemsModel(*current_query));
 
-        installEventFilterKeepThisPrioritized(input_line, results_list);
         connect(results_list, &ResizingList::activated, this, &Window::onFallbackActivation);
         connect(actions_list, &ResizingList::activated, this, &Window::onFallbackActionActivation);
 
@@ -869,14 +851,24 @@ void Window::initializeStatemachine()
     });
 
     QObject::connect(s_results_fallbacks, &QState::exited, this, [this]{
-        input_line->removeEventFilter(results_list);
         disconnect(results_list, &ResizingList::activated, this, &Window::onFallbackActivation);
         disconnect(actions_list, &ResizingList::activated, this, &Window::onFallbackActionActivation);
     });
 
-    QObject::connect(s_results_fallback_actions, &QState::entered, this, showActions);
-    QObject::connect(s_results_fallback_actions, &QState::exited, this, hideActions);
+    QObject::connect(s_actions_visible, &QState::entered, this, [this]{
+        keyboard_navigation_receiver = actions_list;
+        auto m = new QStringListModel(results_list->currentIndex().data(ItemRoles::ActionsListRole)
+                                     .toStringList(),
+                                 actions_list);  // takes ownership
+        setModelMemorySafe(actions_list, m);
+        actions_list->show();
+    });
 
+    QObject::connect(s_actions_visible, &QState::exited, this, [this]{
+        keyboard_navigation_receiver = results_list;
+        actions_list->hide();
+        setModelMemorySafe(actions_list, nullptr);
+    });
 
     state_machine = new QStateMachine(this);
     state_machine->addState(s_root);
@@ -1039,7 +1031,21 @@ bool Window::darkMode() const { return dark_mode; }
 
 bool Window::event(QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress)
+    if (event->type() == QEvent::KeyPress)
+    {
+        switch (auto *ke = static_cast<QKeyEvent *>(event);
+                ke->key())
+        {
+        case Qt::Key_Escape:
+            if (editModeEnabled())
+                setEditModeEnabled(false);
+            else
+                setVisible(false);
+            break;
+        }
+    }
+
+    else if (event->type() == QEvent::MouseButtonPress)
         windowHandle()->startSystemMove();
 
     else if (event->type() == QEvent::Show)
@@ -1072,6 +1078,7 @@ bool Window::event(QEvent *event)
     {
         plugin.state()->setValue(keys.window_position, pos());
 
+        setEditModeEnabled(false);
         QPixmapCache::clear();
 
         emit visibleChanged(false);
@@ -1137,80 +1144,131 @@ bool Window::eventFilter(QObject *watched, QEvent *event)
             auto *ke = static_cast<QKeyEvent *>(event);
             switch (ke->key()) {
 
-            case Qt::Key_Up:
-                // Move up in the history
-                if (!results_list->currentIndex().isValid()
-                    || ke->modifiers().testFlag(Qt::ShiftModifier)
-                    || (results_list->currentIndex().row() == 0
-                        && !ke->isAutoRepeat()))  // ... and first row (non repeat)
-                {
-                    input_line->next();
-                    return true;
-                }
-                break;
-
-            case Qt::Key_Down:
-                // Move down in the history
-                if (ke->modifiers().testFlag(Qt::ShiftModifier))
-                {
-                    input_line->previous();
-                    return true;
-                }
-                break;
+            // Emacs/Vim key synth
 
             case Qt::Key_P:
             case Qt::Key_K:
                 if (ke->modifiers().testFlag(Qt::ControlModifier)) {
-                    QKeyEvent syn(
-                        QEvent::KeyPress, Qt::Key_Up,
-                        ke->modifiers().setFlag(Qt::ControlModifier, false),
-                        ke->text(), ke->isAutoRepeat());
-                    QApplication::sendEvent(input_line, &syn);
+                    QKeyEvent syn(QEvent::KeyPress,
+                                  Qt::Key_Up,
+                                  ke->modifiers().setFlag(Qt::ControlModifier, false),
+                                  ke->text(),
+                                  ke->isAutoRepeat());
+                    return QApplication::sendEvent(input_line, &syn);
                 }
                 break;
 
             case Qt::Key_N:
             case Qt::Key_J:
                 if (ke->modifiers().testFlag(Qt::ControlModifier)) {
-                    QKeyEvent syn(
-                        QEvent::KeyPress, Qt::Key_Down,
-                        ke->modifiers().setFlag(Qt::ControlModifier, false),
-                        ke->text(), ke->isAutoRepeat());
-                    QApplication::sendEvent(input_line, &syn);
+                    QKeyEvent syn(QEvent::KeyPress,
+                                  Qt::Key_Down,
+                                  ke->modifiers().setFlag(Qt::ControlModifier, false),
+                                  ke->text(),
+                                  ke->isAutoRepeat());
+                    return QApplication::sendEvent(input_line, &syn);
                 }
                 break;
 
             case Qt::Key_H:
                 if (ke->modifiers().testFlag(Qt::ControlModifier)) {
-                    QKeyEvent syn(
-                        QEvent::KeyPress, Qt::Key_Left,
-                        ke->modifiers().setFlag(Qt::ControlModifier, false),
-                        ke->text(), ke->isAutoRepeat());
-                    QApplication::sendEvent(input_line, &syn);
+                    QKeyEvent syn(QEvent::KeyPress,
+                                  Qt::Key_Left,
+                                  ke->modifiers().setFlag(Qt::ControlModifier, false),
+                                  ke->text(),
+                                  ke->isAutoRepeat());
+                    return QApplication::sendEvent(input_line, &syn);
                 }
                 break;
 
             case Qt::Key_L:
                 if (ke->modifiers().testFlag(Qt::ControlModifier)) {
-                    QKeyEvent syn(
-                        QEvent::KeyPress, Qt::Key_Right,
-                        ke->modifiers().setFlag(Qt::ControlModifier, false),
-                        ke->text(), ke->isAutoRepeat());
-                    QApplication::sendEvent(input_line, &syn);
+                    QKeyEvent syn(QEvent::KeyPress,
+                                  Qt::Key_Right,
+                                  ke->modifiers().setFlag(Qt::ControlModifier, false),
+                                  ke->text(),
+                                  ke->isAutoRepeat());
+                    return QApplication::sendEvent(input_line, &syn);
                 }
                 break;
 
-            case Qt::Key_Escape:
-                setVisible(false);
+            // Keyboard interaction of lists and edit mode relevant keys
+
+            case Qt::Key_Tab:
+                if (!edit_mode_)
+                {
+                    if (!input_line->completion().isEmpty())
+                        input_line->setText(input_line->text().left(input_line->triggerLength())
+                                            + input_line->completion());
+                    return true; // Always consume in non edit mode
+                }
                 break;
+
+            case Qt::Key_Up:
+                if (!edit_mode_)
+                {
+                    if (ke->modifiers().testFlag(Qt::ShiftModifier)
+                        || (keyboard_navigation_receiver != actions_list
+                            && results_list->currentIndex().row() < 1 && !ke->isAutoRepeat()))
+                        input_line->next();
+                    else if (keyboard_navigation_receiver)
+                        QApplication::sendEvent(keyboard_navigation_receiver, event);
+                    return true; // Always consume in non edit mode
+                }
+                break;
+
+            case Qt::Key_Down:
+                if (!edit_mode_)
+                {
+                    if (ke->modifiers().testFlag(Qt::ShiftModifier))
+                        input_line->previous();
+                    else if (keyboard_navigation_receiver)
+                        QApplication::sendEvent(keyboard_navigation_receiver, event);
+                    return true; // Always consume in non edit mode
+                }
+                break;
+
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
+                if (!edit_mode_ && keyboard_navigation_receiver)
+                    QApplication::sendEvent(keyboard_navigation_receiver, event);
+                return true; // Always consume in non edit mode
+
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
+                if (ke->modifiers() == mods_mod[mod_command]) {
+                    postCustomEvent(ToggleActions);
+                    return true;
+                }
+                else if (!edit_mode_)
+                {
+                    if (ke->modifiers().testFlag(Qt::ShiftModifier))
+                    {
+                        input_line->insertPlainText("\n");
+                        return true;
+                    }
+                    else if (keyboard_navigation_receiver
+                             && keyboard_navigation_receiver->currentIndex().isValid()){
+                        emit keyboard_navigation_receiver->activated(
+                            keyboard_navigation_receiver->currentIndex());
+                        return true;
+                    }
+                }
+                break;
+
+            case Qt::Key_O:
+                if (!edit_mode_ && keyboard_navigation_receiver
+                    && ke->modifiers().testFlag(Qt::ControlModifier)
+                    && keyboard_navigation_receiver->currentIndex().isValid()){
+                    emit keyboard_navigation_receiver->activated(
+                        keyboard_navigation_receiver->currentIndex());
+                    return true;
+                }
+                break;
+
             }
 
-            if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)
-                && ke->modifiers() == mods_mod[mod_command])
-            {
-                postCustomEvent(ToggleActions);
-                return true;
-            }
+            // State changes by modifiers
 
             if (ke->key() == mods_keys[mod_actions])
             {
@@ -1260,6 +1318,7 @@ bool Window::eventFilter(QObject *watched, QEvent *event)
         else if (event->type() == QEvent::Leave)
             postCustomEvent(SettingsButtonLeave);
     }
+
     return false;
 }
 
@@ -1427,6 +1486,17 @@ void Window::setDebugMode(bool val)
     plugin.settings()->setValue(keys.debug, val);
     update();
     emit debugModeChanged(val);
+}
+
+bool Window::editModeEnabled() const { return edit_mode_; }
+
+void Window::setEditModeEnabled(bool v)
+{
+    if (edit_mode_ != v)
+    {
+        edit_mode_ = v;
+        emit editModeEnabledChanged(v);
+    }
 }
 
 bool Window::disableInputMethod() const { return input_line->disable_input_method_; }

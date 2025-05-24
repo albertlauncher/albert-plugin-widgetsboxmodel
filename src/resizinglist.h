@@ -71,7 +71,6 @@ public:
 
 protected:
 
-    bool eventFilter(QObject*, QEvent *event) override;
     void onUpdateSelectionAndSize();
 
     void relayout();

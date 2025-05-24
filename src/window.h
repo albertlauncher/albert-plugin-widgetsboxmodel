@@ -17,11 +17,12 @@ class Frame;
 class InputLine;
 class ItemDelegate;
 class Plugin;
-class QSpacerItem;
 class QEvent;
 class QFrame;
 class QKeyCombination;
+class QListView;
 class QPropertyAnimation;
+class QSpacerItem;
 class QStateMachine;
 class ResultItemsModel;
 class ResultsList;
@@ -83,7 +84,7 @@ private:
     bool dark_mode;
 
     albert::Query *current_query;
-    std::unique_ptr<ResultItemsModel> results_model;
+    QListView *keyboard_navigation_receiver;
 
     enum Mod {Shift, Meta, Contol, Alt};
     Mod mod_command = Mod::Contol;
@@ -98,6 +99,7 @@ private:
     bool quitOnClose_;
     bool shadow_size_;
     bool shadow_offset_;
+    bool edit_mode_;
     QColor settings_button_color_;
     QColor settings_button_color_highlight_;
     std::unique_ptr<DebugOverlay> debug_overlay_;
@@ -170,6 +172,9 @@ public:
 
     bool debugMode() const;
     void setDebugMode(bool b = true);
+
+    bool editModeEnabled() const;
+    void setEditModeEnabled(bool v);
 
 
     uint windowShadowSize() const;
@@ -263,4 +268,5 @@ signals:
     void debugModeChanged(bool);
     void themeDarkChanged(QString);
     void themeLightChanged(QString);
+    void editModeEnabledChanged(bool);
 };
