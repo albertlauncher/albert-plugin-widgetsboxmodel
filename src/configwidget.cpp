@@ -176,6 +176,9 @@ ConfigWidget::ConfigWidget(Window &_window):
          &Window::setDebugMode,
          &Window::debugModeChanged);
 
+    connect(&window, &Window::debugModeChanged,
+            ui.pushButton_winprop, &QPushButton::setEnabled);
+
     connect(ui.pushButton_winprop, &QPushButton::pressed, this, [this]
     {
         auto w = new QWidget;
