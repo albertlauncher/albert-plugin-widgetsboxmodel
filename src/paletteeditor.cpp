@@ -42,8 +42,8 @@ static QString toString(const QColor &color)
 
 
 template<typename QEnum>
-static const char *toString(const QEnum value)
-{ return QMetaEnum::fromType<QEnum>().valueToKey(value); }
+static const QString toString(const QEnum value)
+{ return QString::fromLocal8Bit(QMetaEnum::fromType<QEnum>().valueToKey(value)); }
 
 
 class PaletteModel : public QAbstractTableModel
@@ -122,7 +122,7 @@ PaletteEditor::PaletteEditor(const QPalette &palette, QWidget *parent):
     layout()->addWidget(table_view);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    auto *style = QStyleFactory::create("Fusion");
+    auto *style = QStyleFactory::create(QStringLiteral("Fusion"));
     style->setParent(this);
     setStyleRecursive(this, style);
     setPalette(palette);

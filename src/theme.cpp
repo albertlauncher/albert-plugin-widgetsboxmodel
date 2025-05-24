@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QStyle>
 #include <map>
+using namespace Qt::StringLiterals;
 using namespace std;
 
 
@@ -45,40 +46,40 @@ namespace
 {
 
 struct {
-    const char *base                                   = "palette/base";
-    const char *text                                   = "palette/text";
-    const char *window                                 = "palette/window";
-    const char *window_text                            = "palette/window_text";
-    const char *button                                 = "palette/button";
-    const char *button_text                            = "palette/button_text";
-    const char *light                                  = "palette/light";
-    const char *mid                                    = "palette/mid";
-    const char *dark                                   = "palette/dark";
-    const char *placeholder_text                       = "palette/placeholder_text";
-    const char *highlight                              = "palette/highlight";
-    const char *highlight_text                         = "palette/highlight_text";
-    const char *link                                   = "palette/link";
-    const char *link_visited                           = "palette/link_visited";
+    const QString base                                   = u"palette/base"_s;
+    const QString text                                   = u"palette/text"_s;
+    const QString window                                 = u"palette/window"_s;
+    const QString window_text                            = u"palette/window_text"_s;
+    const QString button                                 = u"palette/button"_s;
+    const QString button_text                            = u"palette/button_text"_s;
+    const QString light                                  = u"palette/light"_s;
+    const QString mid                                    = u"palette/mid"_s;
+    const QString dark                                   = u"palette/dark"_s;
+    const QString placeholder_text                       = u"palette/placeholder_text"_s;
+    const QString highlight                              = u"palette/highlight"_s;
+    const QString highlight_text                         = u"palette/highlight_text"_s;
+    const QString link                                   = u"palette/link"_s;
+    const QString link_visited                           = u"palette/link_visited"_s;
 
-    const char *window_shadow_brush                    = "window/window_shadow_brush";
-    const char *window_background_brush                = "window/window_background_brush";
-    const char *window_border_brush                    = "window/window_border_brush";
-    const char *input_background_brush                 = "window/input_background_brush";
-    const char *input_border_brush                     = "window/input_border_brush";
-    const char *input_trigger_color                    = "window/input_trigger_color";
-    const char *input_hint_color                       = "window/input_hint_color";
-    const char *settings_button_color                  = "window/settings_button_color";
-    const char *settings_button_highlight_color        = "window/settings_button_highlight_color";
-    const char *result_item_selection_background_brush = "window/result_item_selection_background_brush";
-    const char *result_item_selection_border_brush     = "window/result_item_selection_border_brush";
-    const char *result_item_selection_text_color       = "window/result_item_selection_text_color";
-    const char *result_item_selection_subtext_color    = "window/result_item_selection_subtext_color";
-    const char *result_item_text_color                 = "window/result_item_text_color";
-    const char *result_item_subtext_color              = "window/result_item_subtext_color";
-    const char *action_item_selection_background_brush = "window/action_item_selection_background_brush";
-    const char *action_item_selection_border_brush     = "window/action_item_selection_border_brush";
-    const char *action_item_selection_text_color       = "window/action_item_selection_text_color";
-    const char *action_item_text_color                 = "window/action_item_text_color";
+    const QString window_shadow_brush                    = u"window/window_shadow_brush"_s;
+    const QString window_background_brush                = u"window/window_background_brush"_s;
+    const QString window_border_brush                    = u"window/window_border_brush"_s;
+    const QString input_background_brush                 = u"window/input_background_brush"_s;
+    const QString input_border_brush                     = u"window/input_border_brush"_s;
+    const QString input_trigger_color                    = u"window/input_trigger_color"_s;
+    const QString input_hint_color                       = u"window/input_hint_color"_s;
+    const QString settings_button_color                  = u"window/settings_button_color"_s;
+    const QString settings_button_highlight_color        = u"window/settings_button_highlight_color"_s;
+    const QString result_item_selection_background_brush = u"window/result_item_selection_background_brush"_s;
+    const QString result_item_selection_border_brush     = u"window/result_item_selection_border_brush"_s;
+    const QString result_item_selection_text_color       = u"window/result_item_selection_text_color"_s;
+    const QString result_item_selection_subtext_color    = u"window/result_item_selection_subtext_color"_s;
+    const QString result_item_text_color                 = u"window/result_item_text_color"_s;
+    const QString result_item_subtext_color              = u"window/result_item_subtext_color"_s;
+    const QString action_item_selection_background_brush = u"window/action_item_selection_background_brush"_s;
+    const QString action_item_selection_border_brush     = u"window/action_item_selection_border_brush"_s;
+    const QString action_item_selection_text_color       = u"window/action_item_selection_text_color"_s;
+    const QString action_item_text_color                 = u"window/action_item_text_color"_s;
 } key;
 
 }
@@ -88,7 +89,7 @@ static QBrush parseBrush(const QString &s)
     if (s.isEmpty())
         return {};
 
-    else if (s[0] == '#')
+    else if (s[0] == u'#')
     {
         QColor c(s);
         return c.isValid() ? QBrush(c) : QBrush{};
@@ -133,11 +134,11 @@ Theme Theme::read(const QString &path)
         {
             auto &[k, v] = *it;
 
-            if (v[0] == '$')
+            if (v[0] == u'$')
                 ++it;
 
             else if (auto b = parseBrush(v); b.style() == Qt::NoBrush)
-                throw runtime_error(QString("Invalid brush for %1: %2").arg(k, v).toStdString());
+                throw runtime_error(QStringLiteral("Invalid brush for %1: %2").arg(k, v).toStdString());
 
             else
             {
@@ -147,7 +148,7 @@ Theme Theme::read(const QString &path)
         }
 
         if (c == kv.size())
-            throw runtime_error(QString("Cyclic reference: %1").arg(kv[0]).toStdString());
+            throw runtime_error(QStringLiteral("Cyclic reference: %1").arg(kv.begin()->first).toStdString());
 
         // Resolve references (only references in kv)
         for (auto it = kv.begin(); it != kv.end();)
@@ -170,18 +171,18 @@ Theme Theme::read(const QString &path)
 
             // If neither is the case we have a dangling refernce;
             else
-                throw runtime_error(QString("Dangling reference: %1").arg(v).toStdString());
+                throw runtime_error(QStringLiteral("Dangling reference: %1").arg(v).toStdString());
         }
     }
 
 
     // Read palette
 
-    auto getThrow = [&brushes](const char *role) {
+    auto getThrow = [&brushes](const QString &role) {
         try {
             return brushes.at(role);
         } catch (const out_of_range &e) {
-            throw runtime_error(QString("Mandatory key missing: %1").arg(role).toStdString());
+            throw runtime_error(QStringLiteral("Mandatory key missing: %1").arg(role).toStdString());
         }
     };
 
@@ -226,11 +227,11 @@ Theme Theme::read(const QString &path)
 
     // Read window colors
 
-    auto setb = [&brushes](const char *k, QBrush *out) {
+    auto setb = [&brushes](const QString &k, QBrush *out) {
         if (auto it = brushes.find(k); it != brushes.end())
             *out = it->second;
     };
-    auto setc = [&brushes](const char *k, QColor *out) {
+    auto setc = [&brushes](const QString &k, QColor *out) {
         if (auto it = brushes.find(k); it != brushes.end())
             *out = it->second.color();
     };

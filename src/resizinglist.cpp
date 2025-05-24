@@ -21,7 +21,7 @@ void ItemDelegateBase::paint(QPainter *p, const QStyleOptionViewItem &opt, const
     if(opt.state.testFlag(QStyle::State_Selected))
     {
         QPixmap pm;
-        if (const auto cache_key = QString("_ItemViewSelection_%1x%2")
+        if (const auto cache_key = QStringLiteral("_ItemViewSelection_%1x%2")
                                        .arg(opt.rect.width()).arg(opt.rect.height());
             !QPixmapCache::find(cache_key, &pm))
         {

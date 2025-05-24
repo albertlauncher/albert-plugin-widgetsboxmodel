@@ -27,14 +27,15 @@
 #include <QWindow>
 #include <albert/albert.h>
 #include <albert/logging.h>
+#include <albert/messagebox.h>
 #include <albert/plugininstance.h>
 #include <albert/pluginloader.h>
 #include <albert/pluginmetadata.h>
 #include <albert/query.h>
-#include <albert/widgetsutil.h>
+using namespace Qt::StringLiterals;
+using namespace albert::util;
 using namespace albert;
 using namespace std;
-using namespace util;
 
 namespace  {
 
@@ -220,7 +221,7 @@ Window::Window(PluginInstance &p) :
     initializeStatemachine();
 
     // Reproducible UX
-    auto *style = QStyleFactory::create("Fusion");
+    auto *style = QStyleFactory::create(u"Fusion"_s);
     style->setParent(this);
     setStyleRecursive(this, style);
 
@@ -456,13 +457,13 @@ void Window::initializeProperties()
 void Window::initializeWindowActions()
 {
     auto *a = new QAction(tr("Settings"), this);
-    a->setShortcuts({QKeySequence("Ctrl+,")});
+    a->setShortcuts({QKeySequence("Ctrl+,"_L1)});
     a->setShortcutVisibleInContextMenu(true);
     connect(a, &QAction::triggered, this, [] { albert::showSettings(); });
     addAction(a);
 
     a = new QAction(tr("Hide on focus out"), this);
-    a->setShortcuts({QKeySequence("Meta+h")});
+    a->setShortcuts({QKeySequence("Meta+h"_L1)});
     a->setShortcutVisibleInContextMenu(true);
     a->setCheckable(true);
     a->setChecked(hideOnFocusLoss());
@@ -471,7 +472,7 @@ void Window::initializeWindowActions()
     addAction(a);
 
     a = new QAction(tr("Show centered"), this);
-    a->setShortcuts({QKeySequence("Meta+c")});
+    a->setShortcuts({QKeySequence("Meta+c"_L1)});
     a->setShortcutVisibleInContextMenu(true);
     a->setCheckable(true);
     a->setChecked(showCentered());
@@ -480,7 +481,7 @@ void Window::initializeWindowActions()
     addAction(a);
 
     a = new QAction(tr("Clear on hide"), this);
-    a->setShortcuts({QKeySequence("Meta+i")});
+    a->setShortcuts({QKeySequence("Meta+i"_L1)});
     a->setShortcutVisibleInContextMenu(true);
     a->setCheckable(true);
     a->setChecked(clearOnHide());
@@ -489,7 +490,7 @@ void Window::initializeWindowActions()
     addAction(a);
 
     a = new QAction(tr("Input edit mode"), this);
-    a->setShortcuts({QKeySequence("Meta+e")});
+    a->setShortcuts({QKeySequence("Meta+e"_L1)});
     a->setShortcutVisibleInContextMenu(true);
     a->setCheckable(true);
     a->setChecked(editModeEnabled());
@@ -498,7 +499,7 @@ void Window::initializeWindowActions()
     addAction(a);
 
     a = new QAction(tr("Debug mode"), this);
-    a->setShortcuts({QKeySequence("Meta+d")});
+    a->setShortcuts({QKeySequence("Meta+d"_L1)});
     a->setShortcutVisibleInContextMenu(true);
     a->setCheckable(true);
     a->setChecked(debugMode());
@@ -969,7 +970,7 @@ map<QString, QString> Window::findThemes() const
     map<QString, QString> t;
     for (const auto &path : plugin.dataLocations())
         for (const auto &ini_file_info : QDir(path/"themes")
-                                             .entryInfoList(QStringList("*.ini"),
+                                             .entryInfoList(QStringList(u"*.ini"_s),
                                                             QDir::Files|QDir::NoSymLinks))
             t.emplace(ini_file_info.baseName(), ini_file_info.canonicalFilePath());
     return t;
@@ -988,7 +989,9 @@ void Window::applyTheme(const QString& name)
         } catch (const runtime_error &e) {
             applyTheme(Theme());
             WARN << e.what();
-            warning(QString("%1:%2\n\n%3").arg(tr("Failed loading theme"), name, e.what()));
+            warning(u"%1:%2\n\n%3"_s.arg(tr("Failed loading theme"),
+                                         name,
+                                         QString::fromUtf8(e.what())));
         }
     }
 }
@@ -1244,7 +1247,7 @@ bool Window::eventFilter(QObject *watched, QEvent *event)
                 {
                     if (ke->modifiers().testFlag(Qt::ShiftModifier))
                     {
-                        input_line->insertPlainText("\n");
+                        input_line->insertPlainText(u"\n"_s);
                         return true;
                     }
                     else if (keyboard_navigation_receiver
@@ -1542,7 +1545,7 @@ void Window::setInputFontSize(uint val)
     // Fix for nicely aligned text.
     // The text should be idented by the distance of the cap line to the top.
     auto fm = input_line->fontMetrics();
-    auto font_margin_fix = (fm.lineSpacing() - fm.capHeight() - fm.tightBoundingRect("|").width())/2 ;
+    auto font_margin_fix = (fm.lineSpacing() - fm.capHeight() - fm.tightBoundingRect(u"|"_s).width())/2 ;
     spacer_left->changeSize(font_margin_fix, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
     spacer_right->changeSize(font_margin_fix, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
 

@@ -7,9 +7,10 @@
 #include <QPainter>
 #include <QPixmapCache>
 #include <albert/iconprovider.h>
+using namespace Qt::StringLiterals;
+using namespace albert::util;
 using namespace albert;
 using namespace std;
-using namespace util;
 
 
 class ResultsListDelegate : public ItemDelegateBase
@@ -144,7 +145,7 @@ void ResultsListDelegate::paint(QPainter *p,
     auto selected = o.state.testFlag(QStyle::State_Selected);
 
     QPixmap pm;
-    const auto cache_key = QString("$%1%2result_icon").arg(icon_size * dpr).arg(icon_urls.join(""));
+    const auto cache_key = u"$%1%2result_icon"_s.arg(icon_size * dpr).arg(icon_urls.join(""_L1));
     if (!QPixmapCache::find(cache_key, &pm))
     {
         pm = pixmapFromUrls(icon_urls, QSize(icon_size, icon_size) * dpr);
@@ -185,10 +186,10 @@ void ResultsListDelegate::paint(QPainter *p,
 
     if (draw_debug_overlays)
     {
-        drawDebugRect(*p, o.rect, "ResultDelegate");
-        drawDebugRect(*p, icon_rect, "icon_rect");
-        drawDebugRect(*p, text_rect, "text_rect");
-        drawDebugRect(*p, subtext_rect, "subtext_rect");
+        drawDebugRect(*p, o.rect, u"ResultDelegate"_s);
+        drawDebugRect(*p, icon_rect, u"icon_rect"_s);
+        drawDebugRect(*p, text_rect, u"text_rect"_s);
+        drawDebugRect(*p, subtext_rect, u"subtext_rect"_s);
     }
 
     p->restore();

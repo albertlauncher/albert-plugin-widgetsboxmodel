@@ -65,11 +65,11 @@ void DebugOverlay::drawOverlay(QWidget *widget)
     // drawCheckerboard(painter, widget->rect(), QColor(255,0,0,16), Qt::transparent, 5);
 
     drawDebugRect(painter, widget->rect(),
-                  QString("%1 rect").arg(widget->objectName()),
+                  QStringLiteral("%1 rect").arg(widget->objectName()),
                   Qt::red, Qt::gray);
 
     drawDebugRect(painter, widget->contentsRect(),
-                  QString("%1 contentsRect").arg(widget->objectName()),
+                  QStringLiteral("%1 contentsRect").arg(widget->objectName()),
                   Qt::red, Qt::green);
 
     // drawDebugRect(painter, widget->childrenRect(),

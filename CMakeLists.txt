@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(widgetsboxmodel-ng  VERSION 8.10)
+project(widgetsboxmodel-ng  VERSION 8.11)
 
 find_package(Albert REQUIRED)
 

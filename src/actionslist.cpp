@@ -56,7 +56,7 @@ void ActionsListDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, cons
 
     // Draw debug rect
     if (draw_debug_overlays)
-        drawDebugRect(*p, o.rect, "ActionDelegate::rect");
+        drawDebugRect(*p, o.rect, QStringLiteral("ActionDelegate::rect"));
 
     p->restore();
 }
