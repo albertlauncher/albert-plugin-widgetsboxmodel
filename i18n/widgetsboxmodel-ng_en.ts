@@ -84,22 +84,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Display system shadow</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Tell the system to draw a shadow around the window. Note that on some systems this may look pretty ugly. Use the client shadow in this case.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Display client shadow</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Draw a shadow on the client side.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Display scrollbar</source>
         <translation></translation>
     </message>
@@ -109,6 +93,94 @@
     </message>
     <message>
         <source>Debug mode</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Disable input method</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Window properties</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Shadow size</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Shadow offset</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Border radius</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Border width</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Padding</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Results</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Description font size</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Selection border radius</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Selection border width</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Icon size</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Horizontal spacing</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Vertical spacing</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Actions</source>
         <translation></translation>
     </message>
 </context>
@@ -131,10 +203,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>The theme file could not be opened</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Settings</source>
         <translation></translation>
     </message>
@@ -152,6 +220,22 @@
     </message>
     <message>
         <source>Debug mode</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>The system theme.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Input edit mode</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Failed loading theme</source>
         <translation></translation>
     </message>
 </context>

@@ -77,19 +77,19 @@
     </message>
     <message>
         <source>Display system shadow</source>
-        <translation>Systemschatten anzeigen</translation>
+        <translation type="vanished">Systemschatten anzeigen</translation>
     </message>
     <message>
         <source>Tell the system to draw a shadow around the window. Note that on some systems this may look pretty ugly. Use the client shadow in this case.</source>
-        <translation>Teilen Sie dem System mit, einen Schatten um das Fenster zu zeichnen. Beachten Sie, dass dies auf einigen Systemen ziemlich hässlich aussehen kann. Verwenden Sie in diesem Fall den Clientschatten.</translation>
+        <translation type="vanished">Teilen Sie dem System mit, einen Schatten um das Fenster zu zeichnen. Beachten Sie, dass dies auf einigen Systemen ziemlich hässlich aussehen kann. Verwenden Sie in diesem Fall den Clientschatten.</translation>
     </message>
     <message>
         <source>Display client shadow</source>
-        <translation>Clientschatten anzeigen</translation>
+        <translation type="vanished">Clientschatten anzeigen</translation>
     </message>
     <message>
         <source>Draw a shadow on the client side.</source>
-        <translation>Zeichnen Sie einen Schatten auf der Client-Seite.</translation>
+        <translation type="vanished">Zeichnen Sie einen Schatten auf der Client-Seite.</translation>
     </message>
     <message>
         <source>Display scrollbar</source>
@@ -110,6 +110,94 @@
     <message>
         <source>Debug mode</source>
         <translation>Debug-Modus</translation>
+    </message>
+    <message>
+        <source>Disable input method</source>
+        <translation>Eingabemethode deaktivieren</translation>
+    </message>
+    <message>
+        <source>Window properties</source>
+        <translation>Fenstereigenschaften</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Bearbeiten</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation>System</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>Fenster</translation>
+    </message>
+    <message>
+        <source>Shadow size</source>
+        <translation>Schatten­größe</translation>
+    </message>
+    <message>
+        <source>Shadow offset</source>
+        <translation>Schattenversatz</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Border radius</source>
+        <translation>Rahmenradius</translation>
+    </message>
+    <message>
+        <source>Border width</source>
+        <translation>Rahmenbreite</translation>
+    </message>
+    <message>
+        <source>Padding</source>
+        <translation>Innenabstand</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Abstand</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation>Eingabe</translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation>Schriftgröße</translation>
+    </message>
+    <message>
+        <source>Results</source>
+        <translation>Ergebnisse</translation>
+    </message>
+    <message>
+        <source>Description font size</source>
+        <translation>Schriftgröße der Beschreibung</translation>
+    </message>
+    <message>
+        <source>Selection border radius</source>
+        <translation>Auswahl-Rahmenradius</translation>
+    </message>
+    <message>
+        <source>Selection border width</source>
+        <translation>Auswahl-Rahmenbreite</translation>
+    </message>
+    <message>
+        <source>Icon size</source>
+        <translation>Symbolgröße</translation>
+    </message>
+    <message>
+        <source>Horizontal spacing</source>
+        <translation>Horizontaler Abstand</translation>
+    </message>
+    <message>
+        <source>Vertical spacing</source>
+        <translation>Vertikaler Abstand</translation>
+    </message>
+    <message>
+        <source>Actions</source>
+        <translation>Aktionen</translation>
     </message>
 </context>
 <context>
@@ -132,7 +220,7 @@
     </message>
     <message>
         <source>The theme file could not be opened</source>
-        <translation>Die Themendatei konnte nicht geöffnet werden</translation>
+        <translation type="vanished">Die Themendatei konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -153,6 +241,22 @@
     <message>
         <source>Debug mode</source>
         <translation>Debug-Modus</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>The system theme.</source>
+        <translation>Das Systemthema.</translation>
+    </message>
+    <message>
+        <source>Input edit mode</source>
+        <translation>Eingabebearbeitungsmodus</translation>
+    </message>
+    <message>
+        <source>Failed loading theme</source>
+        <translation>Laden des Themas fehlgeschlagen</translation>
     </message>
 </context>
 </TS>
