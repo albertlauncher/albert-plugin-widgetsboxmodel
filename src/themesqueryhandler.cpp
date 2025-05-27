@@ -2,9 +2,9 @@
 
 #include "themesqueryhandler.h"
 #include "window.h"
-#include <albert/albert.h>
 #include <albert/matcher.h>
 #include <albert/standarditem.h>
+#include <albert/systemutil.h>
 using namespace Qt::StringLiterals;
 using namespace albert::util;
 using namespace albert;
