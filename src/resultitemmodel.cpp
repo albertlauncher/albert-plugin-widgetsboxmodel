@@ -40,24 +40,61 @@ QVariant ResultItemsModel::getResultItemData(const ResultItem &result_item, int 
     switch (role) {
         case ItemRoles::TextRole:
         {
-            QString text = item->text();
-            text.replace(u'\n', u' ');
-            return text;
+            try {
+                auto text = item->text();
+                text.replace(u'\n', u' ');
+                return text;
+            } catch (const exception &e) {
+                WARN << "Exception in Item::text:" << e.what();
+            }
+            return {};
         }
         case ItemRoles::SubTextRole:
         {
-            QString text = item->subtext();
-            text.replace(u'\n', u' ');
-            return text;
+            try {
+                auto text = item->subtext();
+                text.replace(u'\n', u' ');
+                return text;
+            } catch (const exception &e) {
+                WARN << "Exception in Item::subtext:" << e.what();
+            }
+            return {};
         }
         case Qt::ToolTipRole:
-            return QStringLiteral("%1\n%2").arg(item->text(), item->subtext());
+        {
+            try {
+                const auto text = item->text();
+                try {
+                    const auto subtext = item->subtext();
+                    return QStringLiteral("%1\n%2").arg(text, subtext);
+                } catch (const exception &e) {
+                    WARN << "Exception in Item::subtext:" << e.what();
+                }
+            } catch (const exception &e) {
+                WARN << "Exception in Item::text:" << e.what();
+            }
+            return {};
+        }
 
         case ItemRoles::InputActionRole:
-            return item->inputActionText();
+        {
+            try {
+                return item->inputActionText();
+            } catch (const exception &e) {
+                WARN << "Exception in Item::inputActionText:" << e.what();
+            }
+            return {};
+        }
 
         case ItemRoles::IconUrlsRole:
-            return item->iconUrls();
+        {
+            try {
+                return item->iconUrls();
+            } catch (const exception &e) {
+                WARN << "Exception in Item::iconUrls:" << e.what();
+            }
+            return {};
+        }
 
         case ItemRoles::ActionsListRole:
         {
@@ -65,13 +102,16 @@ QVariant ResultItemsModel::getResultItemData(const ResultItem &result_item, int 
                 it != actions_cache_.end())
                 return it->second;
 
-            QStringList action_names;
-            for (const auto &action : item->actions())
-                action_names << action.text;
-
-            // actions_cache_.emplace(make_pair(extension, item.get()), actions_cache_);
-
-            return action_names;
+            try {
+                QStringList action_names;
+                for (const auto &action : item->actions())
+                    action_names << action.text;
+                // actions_cache_.emplace(make_pair(extension, item.get()), actions_cache_);
+                return action_names;
+            } catch (const exception &e) {
+                WARN << "Exception in Item::actions:" << e.what();
+            }
+            return {};
         }
     }
     return {};
