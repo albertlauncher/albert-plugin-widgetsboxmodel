@@ -238,5 +238,14 @@
         <source>Failed loading theme</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Themes</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>themes</source>
+        <extracomment>The trigger</extracomment>
+        <translation></translation>
+    </message>
 </context>
 </TS>

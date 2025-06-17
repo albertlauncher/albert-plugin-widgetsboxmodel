@@ -76,22 +76,6 @@
         <translation>Angezeigte Elemente</translation>
     </message>
     <message>
-        <source>Display system shadow</source>
-        <translation type="vanished">Systemschatten anzeigen</translation>
-    </message>
-    <message>
-        <source>Tell the system to draw a shadow around the window. Note that on some systems this may look pretty ugly. Use the client shadow in this case.</source>
-        <translation type="vanished">Teilen Sie dem System mit, einen Schatten um das Fenster zu zeichnen. Beachten Sie, dass dies auf einigen Systemen ziemlich hässlich aussehen kann. Verwenden Sie in diesem Fall den Clientschatten.</translation>
-    </message>
-    <message>
-        <source>Display client shadow</source>
-        <translation type="vanished">Clientschatten anzeigen</translation>
-    </message>
-    <message>
-        <source>Draw a shadow on the client side.</source>
-        <translation type="vanished">Zeichnen Sie einen Schatten auf der Client-Seite.</translation>
-    </message>
-    <message>
         <source>Display scrollbar</source>
         <translation>Scrollbalken anzeigen</translation>
     </message>
@@ -219,10 +203,6 @@
         <translation>Themendatei öffnen</translation>
     </message>
     <message>
-        <source>The theme file could not be opened</source>
-        <translation type="vanished">Die Themendatei konnte nicht geöffnet werden</translation>
-    </message>
-    <message>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
@@ -257,6 +237,15 @@
     <message>
         <source>Failed loading theme</source>
         <translation>Laden des Themas fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation>Themen</translation>
+    </message>
+    <message>
+        <source>themes</source>
+        <extracomment>The trigger</extracomment>
+        <translation>themen</translation>
     </message>
 </context>
 </TS>

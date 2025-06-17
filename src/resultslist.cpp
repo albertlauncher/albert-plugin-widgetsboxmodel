@@ -8,7 +8,7 @@
 #include <QPixmapCache>
 #include <albert/iconprovider.h>
 using namespace Qt::StringLiterals;
-using namespace albert::util;
+using namespace albert::detail;
 using namespace albert;
 using namespace std;
 
