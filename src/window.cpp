@@ -1195,6 +1195,28 @@ bool Window::eventFilter(QObject *watched, QEvent *event)
                 }
                 break;
 
+            case Qt::Key_F:
+                if (ke->modifiers().testFlag(Qt::ControlModifier)) {
+                    QKeyEvent syn(QEvent::KeyPress,
+                                  Qt::Key_PageDown,
+                                  ke->modifiers().setFlag(Qt::ControlModifier, false),
+                                  ke->text(),
+                                  ke->isAutoRepeat());
+                    return QApplication::sendEvent(input_line, &syn);
+                }
+                break;
+
+            case Qt::Key_B:
+                if (ke->modifiers().testFlag(Qt::ControlModifier)) {
+                    QKeyEvent syn(QEvent::KeyPress,
+                                  Qt::Key_PageUp,
+                                  ke->modifiers().setFlag(Qt::ControlModifier, false),
+                                  ke->text(),
+                                  ke->isAutoRepeat());
+                    return QApplication::sendEvent(input_line, &syn);
+                }
+                break;
+
             // Keyboard interaction of lists and edit mode relevant keys
 
             case Qt::Key_Tab:
