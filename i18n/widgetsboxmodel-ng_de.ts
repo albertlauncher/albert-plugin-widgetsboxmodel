@@ -68,10 +68,6 @@
         <translation>Das Farbthema des hellen Modus festlegen.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; font-size:9pt; color:#808080;&quot;&gt;See the &lt;a href=&quot;https://github.com/albertlauncher/plugins/blob/master/widgetsboxmodel/README.md&quot;&gt;readme&lt;/a&gt; for instructions on how to create your own theme. If you created a nice theme please &lt;a href=&quot;https://github.com/orgs/albertlauncher/discussions/1147&quot;&gt;share it&lt;/a&gt;.&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; font-size:9pt; color:#808080;&quot;&gt;Siehe das &lt;a href=&quot;https://github.com/albertlauncher/plugins/blob/master/widgetsboxmodel/README.md&quot;&gt;Readme&lt;/a&gt; für Anleitungen zur Erstellung Ihres eigenen Themas. Wenn Sie ein schönes Thema erstellt haben, teilen Sie es bitte &lt;a href=&quot;https://github.com/orgs/albertlauncher/discussions/1147&quot;&gt;hier&lt;/a&gt;.&lt;/span&gt;</translation>
-    </message>
-    <message>
         <source>Displayed items</source>
         <translation>Angezeigte Elemente</translation>
     </message>
