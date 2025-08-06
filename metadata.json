@@ -3,6 +3,7 @@
     "description": "Qt Widgets based frontend",
     "description[de]": "Qt Widgets basierte Benutzeroberfläche",
     "license": "ALL",
+    "maintainers": ["@manuelschneid3r"],
     "loadtype": "frontend",
     "name": "Widgets BoxModel",
     "url": "https://github.com/albertlauncher/albert-plugin-widgetsboxmodel",
