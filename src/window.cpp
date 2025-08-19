@@ -1399,7 +1399,7 @@ void Window::setAlwaysOnTop(bool val)
 
     setWindowFlags(windowFlags().setFlag(Qt::WindowStaysOnTopHint, val));
     plugin.settings()->setValue(keys.always_on_top, val);
-    emit clearOnHideChanged(val);
+    emit alwaysOnTopChanged(val);
 }
 
 bool Window::clearOnHide() const { return input_line->clear_on_hide; }
@@ -1433,7 +1433,7 @@ void Window::setFollowCursor(bool val)
 
     followCursor_ = val;
     plugin.settings()->setValue(keys.follow_cursor, val);
-    emit hideOnFocusLossChanged(val);
+    emit followCursorChanged(val);
 }
 
 bool Window::hideOnFocusLoss() const { return hideOnFocusLoss_; }
@@ -1455,7 +1455,7 @@ void Window::setHistorySearchEnabled(bool val)
 
     input_line->history_search = val;
     plugin.settings()->setValue(keys.history_search, val);
-    emit maxResultsChanged(val);
+    emit historySearchEnabledChanged(val);
 }
 
 uint Window::maxResults() const { return results_list->maxItems(); }
@@ -1514,7 +1514,6 @@ void Window::setDebugMode(bool val)
 }
 
 bool Window::editModeEnabled() const { return edit_mode_; }
-
 void Window::setEditModeEnabled(bool v)
 {
     if (edit_mode_ != v)
