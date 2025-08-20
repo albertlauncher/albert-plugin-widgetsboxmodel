@@ -1,1 +1,1 @@
-# albert-plugin-widgetsboxmodel
+# Albert plugin: Widgets BoxModel
