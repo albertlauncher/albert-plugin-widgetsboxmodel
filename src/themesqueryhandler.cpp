@@ -41,16 +41,16 @@ static vector<Action> makeActions(Window *window, const QString& theme_name)
 void ThemesQueryHandler::handleTriggerQuery(Query &query)
 {
     Matcher matcher(query);
+    vector<shared_ptr<Item>> items;
 
     const auto sytem_title = Window::tr("System");
     if (auto m = matcher.match(sytem_title); m)
-        query.add(StandardItem::make(
+        items.emplace_back(StandardItem::make(
             u"system_theme"_s,
             sytem_title,
             Window::tr("The system theme."),
             {u"gen:?&text=🎨"_s},
-            makeActions(window, {})
-            ));
+            makeActions(window, {})));
 
 
     for (const auto &[name, path] : window->themes)
@@ -58,11 +58,12 @@ void ThemesQueryHandler::handleTriggerQuery(Query &query)
         {
             auto actions = makeActions(window, name);
             actions.emplace_back(u"open"_s, Window::tr("Open theme file"), [path] { open(path); });
-
-            query.add(StandardItem::make(u"theme_%1"_s.arg(name),
-                                         name,
-                                         path,
-                                         {u"gen:?&text=🎨"_s},
-                                         ::move(actions)));
+            items.emplace_back(StandardItem::make(u"theme_%1"_s.arg(name),
+                                                  name,
+                                                  path,
+                                                  {u"gen:?&text=🎨"_s},
+                                                  ::move(actions)));
         }
+
+    query.add(::move(items));
 }
