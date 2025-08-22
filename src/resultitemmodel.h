@@ -2,7 +2,6 @@
 
 #pragma once
 #include <QAbstractListModel>
-#include <vector>
 #include <map>
 namespace albert{
 class Extension;
