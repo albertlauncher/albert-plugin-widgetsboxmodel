@@ -148,7 +148,7 @@ void ResultsListDelegate::paint(QPainter *p,
     const auto cache_key = u"$%1%2result_icon"_s.arg(icon_size * dpr).arg(icon_urls.join(""_L1));
     if (!QPixmapCache::find(cache_key, &pm))
     {
-        pm = pixmapFromUrls(icon_urls, QSize(icon_size, icon_size) * dpr);
+        pm = pixmapFromUrls(icon_urls, int(icon_size * dpr));
         pm.setDevicePixelRatio(dpr);
         QPixmapCache::insert(cache_key, pm);
     }
