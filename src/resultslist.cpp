@@ -6,9 +6,8 @@
 #include <QApplication>
 #include <QPainter>
 #include <QPixmapCache>
-#include <albert/iconprovider.h>
+#include <albert/logging.h>
 using namespace Qt::StringLiterals;
-using namespace albert::detail;
 using namespace albert;
 using namespace std;
 
@@ -132,24 +131,31 @@ void ResultsListDelegate::paint(QPainter *p,
     // DATA
     //
 
-    const auto text = text_font_metrics.elidedText(i.data(ItemRoles::TextRole).toString(),
+    using enum ItemRoles;
+
+    const auto selected = o.state.testFlag(QStyle::State_Selected);
+
+    const auto text = text_font_metrics.elidedText(i.data(TextRole).toString(),
                                                    o.textElideMode,
                                                    text_rect.width());
 
-    const auto subtext = subtext_font_metrics.elidedText(i.data(ItemRoles::SubTextRole).toString(),
+    const auto subtext = subtext_font_metrics.elidedText(i.data(SubTextRole).toString(),
                                                          o.textElideMode,
                                                          subtext_rect.width());
 
-    const auto icon_urls = i.data(ItemRoles::IconUrlsRole).value<QStringList>();
-    const auto dpr = o.widget->devicePixelRatioF();
-    auto selected = o.state.testFlag(QStyle::State_Selected);
-
     QPixmap pm;
-    const auto cache_key = u"$%1%2result_icon"_s.arg(icon_size * dpr).arg(icon_urls.join(""_L1));
-    if (!QPixmapCache::find(cache_key, &pm))
+    if (const auto icon = i.data(IconRole).value<QIcon>();
+        icon.isNull())
+        WARN << "Item retured null icon:"
+             << i.data(IdentifierRole).value<QString>();
+    else if (const auto icon_name = icon.name();
+        icon_name.isEmpty())
+        WARN << "Item has no icon name set. Refusing to use icon without a cache key:"
+             << i.data(IdentifierRole).value<QString>();
+    else if (const auto cache_key = u"%1@%2x%3"_s.arg(icon_name).arg(icon_size).arg(o.widget->devicePixelRatioF());
+            !QPixmapCache::find(cache_key, &pm))
     {
-        pm = pixmapFromUrls(icon_urls, int(icon_size * dpr));
-        pm.setDevicePixelRatio(dpr);
+        pm = icon.pixmap(QSize(icon_size, icon_size), o.widget->devicePixelRatioF());
         QPixmapCache::insert(cache_key, pm);
     }
 

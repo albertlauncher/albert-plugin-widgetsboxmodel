@@ -25,7 +25,7 @@ SettingsButton::SettingsButton(QWidget *parent):
         update();
     });
 
-    svg_renderer_ = std::make_unique<QSvgRenderer>(QStringLiteral(":gear"));
+    svg_renderer_ = std::make_unique<QSvgRenderer>(QStringLiteral(":/icons/gear"));
 
     setCursor(Qt::PointingHandCursor);
 

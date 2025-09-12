@@ -2,6 +2,7 @@
 
 #include "themesqueryhandler.h"
 #include "window.h"
+#include <albert/iconutil.h>
 #include <albert/matcher.h>
 #include <albert/standarditem.h>
 #include <albert/systemutil.h>
@@ -38,6 +39,8 @@ static vector<Action> makeActions(Window *window, const QString& theme_name)
     return actions;
 }
 
+static unique_ptr<Icon> makeIcon() { return makeGraphemeIcon(u"🎨"_s); }
+
 void ThemesQueryHandler::handleTriggerQuery(Query &query)
 {
     Matcher matcher(query);
@@ -49,7 +52,7 @@ void ThemesQueryHandler::handleTriggerQuery(Query &query)
             u"system_theme"_s,
             sytem_title,
             Window::tr("The system theme."),
-            {u"gen:?&text=🎨"_s},
+            makeIcon,
             makeActions(window, {})));
 
 
@@ -61,7 +64,7 @@ void ThemesQueryHandler::handleTriggerQuery(Query &query)
             items.emplace_back(StandardItem::make(u"theme_%1"_s.arg(name),
                                                   name,
                                                   path,
-                                                  {u"gen:?&text=🎨"_s},
+                                                  makeIcon,
                                                   ::move(actions)));
         }
 
