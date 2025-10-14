@@ -6,10 +6,8 @@
 #include "window.h"
 #include <QString>
 #include <albert/frontend.h>
-#include <albert/plugininstance.h>
 
-class Plugin : public albert::detail::Frontend,
-               public albert::PluginInstance
+class Plugin : public albert::detail::Frontend
 {
     ALBERT_PLUGIN
 
