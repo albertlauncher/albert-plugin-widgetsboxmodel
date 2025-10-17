@@ -23,7 +23,7 @@ public:
     void setInput(const QString&) override;
     QWidget* createFrontendConfigWidget() override;
     unsigned long long winId() const override;
-    void setQuery(albert::Query *query) override;
+    void setQuery(albert::detail::Query *query) override;
 
 private:
 

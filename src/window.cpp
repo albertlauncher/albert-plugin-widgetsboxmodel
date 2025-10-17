@@ -25,15 +25,17 @@
 #include <QStyleFactory>
 #include <QTimer>
 #include <QWindow>
-#include <albert/albert.h>
+#include <albert/app.h>
 #include <albert/logging.h>
 #include <albert/messagebox.h>
 #include <albert/plugininstance.h>
 #include <albert/pluginloader.h>
 #include <albert/pluginmetadata.h>
 #include <albert/query.h>
+#include <albert/queryexecution.h>
+#include <albert/queryhandler.h>
+#include <albert/queryresults.h>
 using namespace Qt::StringLiterals;
-using namespace albert::util;
 using namespace albert;
 using namespace std;
 
@@ -459,7 +461,7 @@ void Window::initializeWindowActions()
     auto *a = new QAction(tr("Settings"), this);
     a->setShortcuts({QKeySequence("Ctrl+,"_L1)});
     a->setShortcutVisibleInContextMenu(true);
-    connect(a, &QAction::triggered, this, [] { albert::showSettings(); });
+    connect(a, &QAction::triggered, this, [] { App::instance().showSettings(); });
     addAction(a);
 
     a = new QAction(tr("Hide on focus out"), this);
@@ -521,6 +523,14 @@ static void setModelMemorySafe(QAbstractItemView *v, QAbstractItemModel *m)
     if (dm)
         delete dm;
 }
+
+inline static bool isActive(detail::Query *query) { return query->execution().isActive(); }
+
+inline static bool isGlobal(detail::Query *query) { return query->trigger().isEmpty(); }
+
+inline static bool hasMatches(detail::Query *query) { return query->matches().count() > 0; }
+
+inline static bool hasFallbacks(detail::Query *query) { return query->fallbacks().count() > 0; }
 
 void Window::initializeStatemachine()
 {
@@ -604,10 +614,10 @@ void Window::initializeStatemachine()
     addTransition(s_settings_button_hidden, s_settings_button_highlight, SettingsButtonEnter);
 
     addTransition(s_settings_button_hidden, s_settings_button_highlight, this, &Window::queryActiveChanged,
-                  [this] { return current_query->isActive() && settings_button->isVisible(); });  // visible ??
+                  [this] { return isActive(current_query) && settings_button->isVisible(); });  // visible ??
 
     addTransition(s_settings_button_hidden, s_settings_button_highlight_delay, this, &Window::queryActiveChanged,
-                  [this] { return current_query->isActive() && settings_button->isHidden(); });  // visible ??
+                  [this] { return isActive(current_query) && settings_button->isHidden(); });  // visible ??
 
 
     // settingsbutton visible ->
@@ -617,16 +627,16 @@ void Window::initializeStatemachine()
     addTransition(s_settings_button_visible, s_settings_button_highlight, SettingsButtonEnter);
 
     addTransition(s_settings_button_visible, s_settings_button_highlight, this, &Window::queryActiveChanged,
-                  [this]{ return current_query->isActive(); });
+                  [this]{ return isActive(current_query); });
 
 
     // settingsbutton highlight ->
 
     addTransition(s_settings_button_highlight, s_settings_button_hidden, this, &Window::queryActiveChanged,
-                  [this] { return !current_query->isActive() && !input_frame->underMouse() && !settings_button->underMouse(); });
+                  [this] { return !isActive(current_query) && !input_frame->underMouse() && !settings_button->underMouse(); });
 
     addTransition(s_settings_button_highlight, s_settings_button_visible, this, &Window::queryActiveChanged,
-                  [this] { return !current_query->isActive() && input_frame->underMouse() && !settings_button->underMouse(); });
+                  [this] { return !isActive(current_query) && input_frame->underMouse() && !settings_button->underMouse(); });
 
     addTransition(s_settings_button_highlight, s_settings_button_visible, SettingsButtonLeave,
                   [this] { return input_frame->underMouse(); });
@@ -645,26 +655,26 @@ void Window::initializeStatemachine()
     addTransition(s_settings_button_highlight_delay, s_settings_button_highlight, SettingsButtonEnter);
 
     addTransition(s_settings_button_highlight_delay, s_settings_button_hidden, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive(); });
+                  [this]{ return !isActive(current_query); });
 
 
     // settingsbutton spin
 
     addTransition(s_settings_button_slow, s_settings_button_fast, this, &Window::queryActiveChanged,
-                  [this]{ return current_query->isActive(); });
+                  [this]{ return isActive(current_query); });
 
     addTransition(s_settings_button_fast, s_settings_button_slow, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive(); });
+                  [this]{ return !isActive(current_query); });
 
     // hidden ->
 
     addTransition(s_results_hidden, s_results_matches, this, &Window::queryHasMatches);
 
     addTransition(s_results_hidden, s_results_fallbacks, ShowFallbacks,
-                  [this]{ return haveFallbacks(); });
+                  [this]{ return hasFallbacks(current_query); });
 
     addTransition(s_results_hidden, s_results_fallbacks, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
+                  [this]{ return !isActive(current_query) && hasFallbacks(current_query) && isGlobal(current_query); });
 
 
     // matches ->
@@ -676,7 +686,7 @@ void Window::initializeStatemachine()
                   [this]{ return current_query; });
 
     addTransition(s_results_matches, s_results_fallbacks, ShowFallbacks,
-                  [this]{ return haveFallbacks(); });
+                  [this]{ return hasFallbacks(current_query); });
 
 
     // fallbacks ->
@@ -688,10 +698,10 @@ void Window::initializeStatemachine()
                   [this]{ return current_query; });
 
     addTransition(s_results_fallbacks, s_results_matches, HideFallbacks,
-                  [this]{ return haveMatches(); });
+                  [this]{ return hasMatches(current_query); });
 
     addTransition(s_results_fallbacks, s_results_hidden, HideFallbacks,
-                  [this]{ return !haveMatches() && current_query->isActive(); });
+                  [this]{ return !hasMatches(current_query) && isActive(current_query); });
 
 
     // disabled ->
@@ -702,10 +712,10 @@ void Window::initializeStatemachine()
     addTransition(s_results_disabled, s_results_hidden, display_delay_timer, &QTimer::timeout);
 
     addTransition(s_results_disabled, s_results_hidden, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive() && (!haveFallbacks() || current_query->isTriggered()); });
+                  [this]{ return !isActive(current_query) && (!hasFallbacks(current_query) || !isGlobal(current_query)); });
 
     addTransition(s_results_disabled, s_results_fallbacks, this, &Window::queryActiveChanged,
-                  [this]{ return !current_query->isActive() && haveFallbacks() && !current_query->isTriggered(); });
+                  [this]{ return !isActive(current_query) && hasFallbacks(current_query) && isGlobal(current_query); });
 
     addTransition(s_results_disabled, s_results_matches, this, &Window::queryHasMatches);
 
@@ -814,7 +824,7 @@ void Window::initializeStatemachine()
 
     QObject::connect(s_results_matches, &QState::entered, this, [this]{
         keyboard_navigation_receiver = results_list;
-        setModelMemorySafe(results_list, new MatchItemsModel(*current_query));
+        setModelMemorySafe(results_list, new MatchItemsModel(current_query->matches(), current_query->execution()));
 
         connect(results_list, &ResizingList::activated, this, &Window::onMatchActivation);
         connect(actions_list, &ResizingList::activated, this, &Window::onMatchActionActivation);
@@ -843,7 +853,7 @@ void Window::initializeStatemachine()
 
     QObject::connect(s_results_fallbacks, &QState::entered, this, [this]{
         keyboard_navigation_receiver = results_list;
-        setModelMemorySafe(results_list, new FallbackItemsModel(*current_query));
+        setModelMemorySafe(results_list, new ResultItemsModel(current_query->fallbacks()));
 
         connect(results_list, &ResizingList::activated, this, &Window::onFallbackActivation);
         connect(actions_list, &ResizingList::activated, this, &Window::onFallbackActionActivation);
@@ -885,17 +895,13 @@ void Window::installEventFilterKeepThisPrioritized(QObject *watched, QObject *fi
     watched->installEventFilter(this);
 }
 
-bool Window::haveMatches() const { return current_query->matches().size() > 0; }
-
-bool Window::haveFallbacks() const { return current_query->fallbacks().size() > 0; }
-
 void Window::postCustomEvent(EventType event_type)
 { state_machine->postEvent(new Event(event_type)); } // takes ownership
 
 void Window::onSettingsButtonClick(Qt::MouseButton button)
 {
     if (button == Qt::LeftButton)
-        albert::showSettings();
+        App::instance().showSettings();
 
     else if (button == Qt::RightButton)
     {
@@ -909,32 +915,34 @@ void Window::onSettingsButtonClick(Qt::MouseButton button)
 void Window::onMatchActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (auto should_hide = current_query->activateMatch(index.row(), 0);
-            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
-                hide();
+        if (auto should_hide = current_query->matches().activate(index.row(), 0);
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))
+            hide();
 }
 
 void Window::onMatchActionActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (auto should_hide = current_query->activateMatch(results_list->currentIndex().row(), index.row());
-            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
+        if (auto should_hide = current_query->matches().activate(results_list->currentIndex().row(),
+                                                                 index.row());
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))
             hide();
 }
 
 void Window::onFallbackActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (auto should_hide = current_query->activateFallback(index.row(), 0);
-            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
+        if (auto should_hide = current_query->fallbacks().activate(index.row(), 0);
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))
             hide();
 }
 
 void Window::onFallbackActionActivation(const QModelIndex &index)
 {
     if (index.isValid())
-        if (auto should_hide = current_query->activateFallback(results_list->currentIndex().row(), index.row());
-            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))  // xor
+        if (auto should_hide = current_query->fallbacks()
+                                   .activate(results_list->currentIndex().row(), index.row());
+            should_hide != QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))
             hide();
 }
 
@@ -942,10 +950,13 @@ QString Window::input() const { return input_line->text(); }
 
 void Window::setInput(const QString &text) { input_line->setText(text); }
 
-void Window::setQuery(Query *q)
+void Window::setQuery(detail::Query *q)
 {
     if(current_query)
-        disconnect(current_query, nullptr, this, nullptr);
+    {
+        disconnect(&current_query->matches(), nullptr, this, nullptr);
+        disconnect(&current_query->execution(), nullptr, this, nullptr);
+    }
 
     current_query = q;
     emit queryChanged(q);
@@ -953,15 +964,21 @@ void Window::setQuery(Query *q)
     if(q)
     {
         input_line->setTriggerLength(q->trigger().length());
-        input_line->setSynopsis(q->synopsis());
+        input_line->setSynopsis(q->handler().synopsis(q->query()));
         input_line->setCompletion();
 
-        connect(current_query, &Query::matchesAdded,
-                this, &Window::queryHasMatches,
-                Qt::SingleShotConnection);
-
-        connect(current_query, &Query::activeChanged,
+        // Statemachine active state synchronization
+        connect(&current_query->execution(), &QueryExecution::activeChanged,
                 this, &Window::queryActiveChanged);
+        emit current_query->execution().activeChanged(current_query->execution().isActive());
+
+        // Statemachine hasMatches state synchronization
+        if (q->matches().count() > 0)
+            emit queryHasMatches();
+        else
+            connect(&current_query->matches(), &QueryResults::resultsInserted,
+                    this, &Window::queryHasMatches,
+                    Qt::SingleShotConnection);
     }
 }
 
@@ -969,9 +986,9 @@ map<QString, QString> Window::findThemes() const
 {
     map<QString, QString> t;
     for (const auto &path : plugin.dataLocations())
-        for (const auto &ini_file_info : QDir(path/"themes")
-                                             .entryInfoList(QStringList(u"*.ini"_s),
-                                                            QDir::Files|QDir::NoSymLinks))
+        for (const auto theme_files
+             = QDir(path / "themes").entryInfoList({u"*.ini"_s}, QDir::Files | QDir::NoSymLinks);
+             const auto &ini_file_info : theme_files)
             t.emplace(ini_file_info.baseName(), ini_file_info.canonicalFilePath());
     return t;
 }
@@ -989,9 +1006,9 @@ void Window::applyTheme(const QString& name)
         } catch (const runtime_error &e) {
             applyTheme(Theme());
             WARN << e.what();
-            warning(u"%1:%2\n\n%3"_s.arg(tr("Failed loading theme"),
-                                         name,
-                                         QString::fromUtf8(e.what())));
+            albert::warning(u"%1:%2\n\n%3"_s.arg(tr("Failed loading theme"),
+                                                 name,
+                                                 QString::fromUtf8(e.what())));
         }
     }
 }

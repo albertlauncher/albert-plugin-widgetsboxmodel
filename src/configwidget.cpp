@@ -7,7 +7,6 @@
 #include <albert/widgetsutil.h>
 using namespace albert;
 using namespace std;
-using namespace util;
 
 template<typename T>
 static QSpinBox *createSpinBox(QFormLayout *form_layout,
@@ -111,41 +110,41 @@ ConfigWidget::ConfigWidget(Window &_window):
             cb->setCurrentIndex(i);
     });
 
-    bind(ui.checkBox_onTop,
-         &window,
-         &Window::alwaysOnTop,
-         &Window::setAlwaysOnTop,
-         &Window::alwaysOnTopChanged);
+    bindWidget(ui.checkBox_onTop,
+               &window,
+               &Window::alwaysOnTop,
+               &Window::setAlwaysOnTop,
+               &Window::alwaysOnTopChanged);
 
-    bind(ui.checkBox_clearOnHide,
-         &window,
-         &Window::clearOnHide,
-         &Window::setClearOnHide,
-         &Window::clearOnHideChanged);
+    bindWidget(ui.checkBox_clearOnHide,
+               &window,
+               &Window::clearOnHide,
+               &Window::setClearOnHide,
+               &Window::clearOnHideChanged);
 
-    bind(ui.checkBox_scrollbar,
-         &window,
-         &Window::displayScrollbar,
-         &Window::setDisplayScrollbar,
-         &Window::displayScrollbarChanged);
+    bindWidget(ui.checkBox_scrollbar,
+               &window,
+               &Window::displayScrollbar,
+               &Window::setDisplayScrollbar,
+               &Window::displayScrollbarChanged);
 
-    bind(ui.checkBox_followCursor,
-         &window,
-         &Window::followCursor,
-         &Window::setFollowCursor,
-         &Window::followCursorChanged);
+    bindWidget(ui.checkBox_followCursor,
+               &window,
+               &Window::followCursor,
+               &Window::setFollowCursor,
+               &Window::followCursorChanged);
 
-    bind(ui.checkBox_hideOnFocusOut,
-         &window,
-         &Window::hideOnFocusLoss,
-         &Window::setHideOnFocusLoss,
-         &Window::hideOnFocusLossChanged);
+    bindWidget(ui.checkBox_hideOnFocusOut,
+               &window,
+               &Window::hideOnFocusLoss,
+               &Window::setHideOnFocusLoss,
+               &Window::hideOnFocusLossChanged);
 
-    bind(ui.checkBox_history_search,
-         &window,
-         &Window::historySearchEnabled,
-         &Window::setHistorySearchEnabled,
-         &Window::historySearchEnabledChanged);
+    bindWidget(ui.checkBox_history_search,
+               &window,
+               &Window::historySearchEnabled,
+               &Window::setHistorySearchEnabled,
+               &Window::historySearchEnabledChanged);
 
     ui.spinBox_results->setValue((int)window.maxResults());
     connect(ui.spinBox_results, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -153,28 +152,28 @@ ConfigWidget::ConfigWidget(Window &_window):
     connect(&window, &Window::maxResultsChanged,
             ui.spinBox_results, &QSpinBox::setValue);
 
-    bind(ui.checkBox_quit_on_close,
-         &window,
-         &Window::quitOnClose,
-         &Window::setQuitOnClose,
-         &Window::quitOnCloseChanged);
+    bindWidget(ui.checkBox_quit_on_close,
+               &window,
+               &Window::quitOnClose,
+               &Window::setQuitOnClose,
+               &Window::quitOnCloseChanged);
 
-    bind(ui.checkBox_input_method,
-         &window,
-         &Window::disableInputMethod,
-         &Window::setDisableInputMethod);
+    bindWidget(ui.checkBox_input_method,
+               &window,
+               &Window::disableInputMethod,
+               &Window::setDisableInputMethod);
 
-    bind(ui.checkBox_center,
-         &window,
-         &Window::showCentered,
-         &Window::setShowCentered,
-         &Window::showCenteredChanged);
+    bindWidget(ui.checkBox_center,
+               &window,
+               &Window::showCentered,
+               &Window::setShowCentered,
+               &Window::showCenteredChanged);
 
-    bind(ui.checkBox_debug,
-         &window,
-         &Window::debugMode,
-         &Window::setDebugMode,
-         &Window::debugModeChanged);
+    bindWidget(ui.checkBox_debug,
+               &window,
+               &Window::debugMode,
+               &Window::setDebugMode,
+               &Window::debugModeChanged);
 
     connect(&window, &Window::debugModeChanged,
             ui.pushButton_winprop, &QPushButton::setEnabled);

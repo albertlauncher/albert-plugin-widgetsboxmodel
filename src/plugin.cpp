@@ -29,4 +29,4 @@ QWidget *Plugin::createFrontendConfigWidget() { return new ConfigWidget(window);
 
 unsigned long long Plugin::winId() const { return window.winId(); }
 
-void Plugin::setQuery(Query *q) { window.setQuery(q); }
+void Plugin::setQuery(detail::Query *q) { window.setQuery(q); }

@@ -7,7 +7,6 @@
 #include <albert/standarditem.h>
 #include <albert/systemutil.h>
 using namespace Qt::StringLiterals;
-using namespace albert::util;
 using namespace albert;
 using namespace std;
 
@@ -41,23 +40,22 @@ static vector<Action> makeActions(Window *window, const QString& theme_name)
 
 static unique_ptr<Icon> makeIcon() { return makeGraphemeIcon(u"🎨"_s); }
 
-void ThemesQueryHandler::handleTriggerQuery(Query &query)
+vector<RankItem> ThemesQueryHandler::rankItems(QueryContext &ctx)
 {
-    Matcher matcher(query);
-    vector<shared_ptr<Item>> items;
-
+    Matcher matcher(ctx);
+    vector<RankItem> items;
     const auto sytem_title = Window::tr("System");
-    if (auto m = matcher.match(sytem_title); m)
-        items.emplace_back(StandardItem::make(
-            u"system_theme"_s,
-            sytem_title,
-            Window::tr("The system theme."),
-            makeIcon,
-            makeActions(window, {})));
 
+    if (const auto m = matcher.match(sytem_title); m)
+        items.emplace_back(StandardItem::make(u"system_theme"_s,
+                                              sytem_title,
+                                              Window::tr("The system theme."),
+                                              makeIcon,
+                                              makeActions(window, {})),
+                           m);
 
     for (const auto &[name, path] : window->themes)
-        if (auto m = matcher.match(name); m)
+        if (const auto m = matcher.match(name); m)
         {
             auto actions = makeActions(window, name);
             actions.emplace_back(u"open"_s, Window::tr("Open theme file"), [path] { open(path); });
@@ -65,8 +63,9 @@ void ThemesQueryHandler::handleTriggerQuery(Query &query)
                                                   name,
                                                   path,
                                                   makeIcon,
-                                                  ::move(actions)));
+                                                  ::move(actions)),
+                               m);
         }
 
-    query.add(::move(items));
+    return items;
 }

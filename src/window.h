@@ -7,8 +7,8 @@
 #include <QTimer>
 #include <QWidget>
 namespace albert {
-class Query;
 class PluginInstance;
+namespace detail { class Query; }
 }
 class ActionDelegate;
 class ActionsList;
@@ -43,7 +43,7 @@ public:
     QString input() const;
     void setInput(const QString&);
 
-    void setQuery(albert::Query *query);
+    void setQuery(albert::detail::Query *query);
 
     const std::map<QString, QString> themes;
 
@@ -59,9 +59,6 @@ private:
     std::map<QString, QString> findThemes() const;
     void applyTheme(const QString& name);  // only for valid names, throws runtime_errors
     void applyTheme(const Theme &);
-
-    bool haveMatches() const;
-    bool haveFallbacks() const;
 
     void onSettingsButtonClick(Qt::MouseButton button);
     void onMatchActivation(const QModelIndex &);
@@ -83,7 +80,7 @@ private:
     ActionsList *actions_list;
     bool dark_mode;
 
-    albert::Query *current_query;
+    albert::detail::Query *current_query;
     QListView *keyboard_navigation_receiver;
 
     enum Mod {Shift, Meta, Contol, Alt};
@@ -128,7 +125,7 @@ signals:
 
     void inputChanged(QString);
     void visibleChanged(bool);
-    void queryChanged(albert::Query*);
+    void queryChanged(albert::detail::Query*);
     void queryActiveChanged(bool);  // Convenience signal to avoid reconnects
     void queryHasMatches();  // Convenience signal to avoid reconnects
 

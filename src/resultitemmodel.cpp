@@ -10,30 +10,68 @@
 #include <albert/item.h>
 #include <albert/logging.h>
 #include <albert/query.h>
+#include <albert/queryexecution.h>
+#include <albert/queryhandler.h>
+#include <albert/queryresults.h>
 #include <albert/rankitem.h>
 using enum ItemRoles;
 using namespace Qt::StringLiterals;
 using namespace albert;
 using namespace std;
 
-
-// -------------------------------------------------------------------------------------------------
-
-ResultItemsModel::ResultItemsModel(Query &query):
-    query_(query)
+ResultItemsModel::ResultItemsModel(const QueryResults &r) :
+    query_results(r)
 {
+    connect(&query_results, &QueryResults::resultsAboutToBeInserted,
+            this, [this](int first, int last)
+            { beginInsertRows({}, first, last); });
+
+    connect(&query_results, &QueryResults::resultsInserted,
+            this, [this]
+            { endInsertRows(); });
+
+    connect(&query_results, &QueryResults::resultsAboutToBeRemoved,
+            this, [this](int first, int last)
+            { beginRemoveRows({}, first, last); });
+
+    connect(&query_results, &QueryResults::resultsRemoved,
+            this, [this]
+            { endRemoveRows(); });
+
+    connect(&query_results, &QueryResults::resultsAboutToBeMoved,
+            this, [this](int srcFirst, int srcLast, int dst)
+            { beginMoveRows({}, srcFirst, srcLast, {}, dst); });
+
+    connect(&query_results, &QueryResults::resultsMoved,
+            this, [this]
+            { endMoveRows(); });
+
+    connect(&query_results, &QueryResults::resultsAboutToBeReset,
+            this, [this]
+            { beginResetModel(); });
+
+    connect(&query_results, &QueryResults::resultsReset,
+            this, [this]
+            { endResetModel(); });
+
+    connect(&query_results, &QueryResults::resultChanged,
+            this, [this](uint idx)
+            { emit dataChanged(index(idx, 0), index(idx, 0)); });
 }
 
-QVariant ResultItemsModel::getResultItemData(const ResultItem &result_item, int role) const
+int ResultItemsModel::rowCount(const QModelIndex &) const { return (int) query_results.count(); }
+
+QVariant ResultItemsModel::data(const QModelIndex &index, int role) const
 {
-    const auto &[extension, item] = result_item;
+    const auto &query_result = query_results[index.row()];
+    const auto &[extension, item] = query_result;
 
     switch (role) {
 
     case IdentifierRole:
     {
         try {
-            return u"%1.%2"_s.arg(extension.id(), item->id());
+            return u"%1.%2"_s.arg(extension->id(), item->id());
         } catch (const exception &e) {
             WARN << "Exception in Item::id:" << e.what();
         }
@@ -101,7 +139,7 @@ QVariant ResultItemsModel::getResultItemData(const ResultItem &result_item, int 
 
     case ActionsListRole:
     {
-        if (auto it = actions_cache_.find(&result_item);
+        if (auto it = actions_cache_.find(&query_result);
             it != actions_cache_.end())
             return it->second;
 
@@ -120,125 +158,16 @@ QVariant ResultItemsModel::getResultItemData(const ResultItem &result_item, int 
     return {};
 }
 
+MatchItemsModel::MatchItemsModel(const albert::QueryResults &results, albert::QueryExecution &execution)
+    : ResultItemsModel(results)
+    , query_execution(execution) {}
 
-// -------------------------------------------------------------------------------------------------
-
-MatchItemsModel::MatchItemsModel(Query &query):
-    ResultItemsModel(query)
+bool MatchItemsModel::canFetchMore(const QModelIndex &) const
 {
-    connect(&query, &Query::matchesAboutToBeAdded, this, [&, this](uint count){
-        Q_ASSERT(count > 0);
-        beginInsertRows({}, query.matches().size(), query.matches().size() + count - 1);
-    });
-
-    connect(&query, &Query::matchesAdded, this, [this] { endInsertRows(); });
-
-    connect(&query, &Query::dataChanged, this, [this](uint i){
-        emit dataChanged(index(i, 0), index(i, 0));
-    });
+    return query_execution.canFetchMore();
 }
 
-int MatchItemsModel::rowCount(const QModelIndex &) const
-{ return (int)query_.matches().size(); }
-
-bool MatchItemsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+void MatchItemsModel::fetchMore(const QModelIndex &)
 {
-    if (index.isValid() && role == ActivateActionRole)
-        return query_.activateMatch(index.row(), value.toUInt());
-    else
-        return false;
+    query_execution.fetchMore();
 }
-
-QVariant MatchItemsModel::data(const QModelIndex &index, int role) const
-{
-    if (index.isValid())
-        return getResultItemData(query_.matches().at(index.row()), role);
-    return {};
-}
-
-
-// -------------------------------------------------------------------------------------------------
-
-int FallbackItemsModel::rowCount(const QModelIndex &) const
-{ return (int)query_.fallbacks().size(); }
-
-bool FallbackItemsModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (index.isValid() && role == ActivateActionRole)
-        return query_.activateFallback(index.row(), value.toUInt());
-    else
-        return false;
-}
-
-QVariant FallbackItemsModel::data(const QModelIndex &index, int role) const
-{
-    if (index.isValid())
-        return getResultItemData(query_.fallbacks().at(index.row()), role);
-    return {};
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// void ItemsModel::add(Extension *extension, vector<shared_ptr<Item>> &&itemvec)
-// {
-//     if (itemvec.empty())
-//         return;
-
-//     beginInsertRows(QModelIndex(), (int)items.size(), (int)(items.size()+itemvec.size()-1));
-//     items.reserve(items.size()+itemvec.size());
-//     for (auto &&item : itemvec)
-//         items.emplace_back(extension, ::move(item));
-//     endInsertRows();
-// }
-
-// void ItemsModel::add(vector<pair<Extension*, shared_ptr<Item>>>::iterator begin,
-//                      vector<pair<Extension*, shared_ptr<Item>>>::iterator end)
-// {
-//     if (begin == end)
-//         return;
-
-//     items.reserve(items.size()+(size_t)(end-begin));
-
-//     beginInsertRows(QModelIndex(), (int)items.size(), (int)(items.size())+(int)(end-begin)-1);
-
-//     items.insert(items.end(), make_move_iterator(begin), make_move_iterator(end));
-
-//     endInsertRows();
-
-// }
-
-// void ItemsModel::add(vector<pair<Extension*,RankItem>>::iterator begin,
-//                      vector<pair<Extension*,RankItem>>::iterator end)
-// {
-//     if (begin == end)
-//         return;
-
-//     items.reserve(items.size()+(size_t)(end-begin));
-
-//     beginInsertRows(QModelIndex(), (int)items.size(), (int)(items.size())+(int)(end-begin)-1);
-
-//     for (auto it = begin; it != end; ++it)
-//         items.emplace_back(it->first, ::move(it->second.item));
-
-//     endInsertRows();
-// }
-
-// QAbstractListModel *ItemsModel::buildActionsModel(uint i) const
-// {
-//     QStringList l;
-//     for (const auto &a : items[i].second->actions())
-//         l << a.text;
-//     return new QStringListModel(l);
-// }
