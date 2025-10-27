@@ -448,7 +448,7 @@ void Window::initializeProperties()
         theme_dark_ = t;
 
     // applyTheme requires a valid window for the message box. Set theme later.
-    QTimer::singleShot(0, [this]{ applyTheme(dark_mode ? theme_dark_ : theme_light_); });
+    QTimer::singleShot(0, this, [this]{ applyTheme(dark_mode ? theme_dark_ : theme_light_); });
 
     s = plugin.state();
     if (!showCentered() && s->contains(keys.window_position)
