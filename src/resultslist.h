@@ -18,10 +18,10 @@ public:
     void setSelectionSubextColor(QColor);
 
     uint iconSize() const;
-    void setIconSite(uint);
+    void setIconSize(uint);
 
     uint subtextFontSize() const;
-    void setSubextFontSize(uint);
+    void setSubtextFontSize(uint);
 
     uint horizonzalSpacing() const;
     void setHorizonzalSpacing(uint);

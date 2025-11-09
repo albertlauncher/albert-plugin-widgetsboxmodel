@@ -1541,95 +1541,260 @@ void Window::setEditModeEnabled(bool v)
 }
 
 bool Window::disableInputMethod() const { return input_line->disable_input_method_; }
-void Window::setDisableInputMethod(bool val) { input_line->disable_input_method_ = val; }
+void Window::setDisableInputMethod(bool val)
+{
+    if (disableInputMethod() != val)
+    {
+        input_line->disable_input_method_ = val;
+        plugin.settings()->setValue(keys.disable_input_method, val);
+    }
+}
 
 
 uint Window::windowShadowSize() const { return shadowSize(); }
-void Window::setWindowShadowSize(uint val) { setShadowSize(val); }
+void Window::setWindowShadowSize(uint val)
+{
+    if (val != windowShadowSize())
+    {
+        setShadowSize(val);
+        plugin.settings()->setValue(keys.window_shadow_size, val);
+    }
+}
 
 uint Window::windowShadowOffset() const { return shadowOffset(); }
-void Window::setWindowShadowOffset(uint val) { setShadowOffset(val); }
+void Window::setWindowShadowOffset(uint val)
+{
+    if (val != windowShadowOffset())
+    {
+        setShadowOffset(val);
+        plugin.settings()->setValue(keys.window_shadow_offset, val);
+    }
+}
 
 double Window::windowBorderRadius() const { return radius(); }
-void Window::setWindowBorderRadius(double val) { setRadius(val); }
+void Window::setWindowBorderRadius(double val)
+{
+    if (val != windowBorderRadius())
+    {
+        setRadius(val);
+        plugin.settings()->setValue(keys.window_border_radius, val);
+    }
+}
 
 double Window::windowBorderWidth() const { return borderWidth(); }
-void Window::setWindowBorderWidth(double val) { setBorderWidth(val); }
+void Window::setWindowBorderWidth(double val)
+{
+    if (val != windowBorderWidth())
+    {
+        setBorderWidth(val);
+        plugin.settings()->setValue(keys.window_border_width, val);
+    }
+}
 
 uint Window::windowPadding() const { return layout()->contentsMargins().left(); }
-void Window::setWindowPadding(uint val) { layout()->setContentsMargins(val, val, val, val); }
+void Window::setWindowPadding(uint val)
+{
+    if (val != windowPadding())
+    {
+        layout()->setContentsMargins(val, val, val, val);
+        plugin.settings()->setValue(keys.window_padding, val);
+    }
+}
 
 uint Window::windowSpacing() const { return layout()->spacing(); }
-void Window::setWindowSpacing(uint val) { layout()->setSpacing(val); }
+void Window::setWindowSpacing(uint val)
+{
+    if (val != windowSpacing())
+    {
+        layout()->setSpacing(val);
+        plugin.settings()->setValue(keys.window_spacing, val);
+    }
+}
 
 uint Window::windowWidth() const { return input_frame->width(); }
-void Window::setWindowWidth(uint val) { input_frame->setFixedWidth(val); }
+void Window::setWindowWidth(uint val)
+{
+    if (val != windowWidth())
+    {
+        input_frame->setFixedWidth(val);
+        plugin.settings()->setValue(keys.window_width, val);
+    }
+}
 
 
 uint Window::inputPadding() const { return input_frame->contentsMargins().left(); }
-void Window::setInputPadding(uint val) { input_frame->setContentsMargins(val, val, val, val); }
+void Window::setInputPadding(uint val)
+{
+    if (val != inputPadding())
+    {
+        input_frame->setContentsMargins(val, val, val, val);
+        plugin.settings()->setValue(keys.input_padding, val);
+    }
+}
 
 double Window::inputBorderRadius() const { return input_frame->radius(); }
-void Window::setInputBorderRadius(double val) { input_frame->setRadius(val); }
+void Window::setInputBorderRadius(double val)
+{
+    if (val != inputBorderRadius())
+    {
+        input_frame->setRadius(val);
+        plugin.settings()->setValue(keys.input_border_radius, val);
+    }
+}
 
 double Window::inputBorderWidth() const { return input_frame->borderWidth(); }
-void Window::setInputBorderWidth(double val) { input_frame->setBorderWidth(val); }
+void Window::setInputBorderWidth(double val)
+{
+    if (val != inputBorderWidth())
+    {
+        input_frame->setBorderWidth(val);
+        plugin.settings()->setValue(keys.input_border_width, val);
+    }
+}
 
 uint Window::inputFontSize() const { return input_line->fontSize(); }
 void Window::setInputFontSize(uint val)
 {
-    input_line->setFontSize(val);
+    if (val != inputFontSize())
+    {
+        input_line->setFontSize(val);
+        plugin.settings()->setValue(keys.input_font_size, val);
 
-    // Fix for nicely aligned text.
-    // The text should be idented by the distance of the cap line to the top.
-    auto fm = input_line->fontMetrics();
-    auto font_margin_fix = (fm.lineSpacing() - fm.capHeight() - fm.tightBoundingRect(u"|"_s).width())/2 ;
-    spacer_left->changeSize(font_margin_fix, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
-    spacer_right->changeSize(font_margin_fix, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
+        // Fix for nicely aligned text.
+        // The text should be idented by the distance of the cap line to the top.
+        auto fm = input_line->fontMetrics();
+        auto font_margin_fix = (fm.lineSpacing() - fm.capHeight() - fm.tightBoundingRect(u"|"_s).width())/2 ;
+        spacer_left->changeSize(font_margin_fix, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
+        spacer_right->changeSize(font_margin_fix, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    auto input_line_height = fm.lineSpacing() + 2;  // 1px document margins
-    settings_button->setFixedSize(input_line_height, input_line_height);
-    settings_button->setContentsMargins(font_margin_fix, font_margin_fix,
-                                        font_margin_fix, font_margin_fix);
+        auto input_line_height = fm.lineSpacing() + 2;  // 1px document margins
+        settings_button->setFixedSize(input_line_height, input_line_height);
+        settings_button->setContentsMargins(font_margin_fix, font_margin_fix,
+                                            font_margin_fix, font_margin_fix);
+    }
 }
 
 
 double Window::resultItemSelectionBorderRadius() const { return results_list->borderRadius(); }
-void Window::setResultItemSelectionBorderRadius(double val) { results_list->setBorderRadius(val); }
+void Window::setResultItemSelectionBorderRadius(double val)
+{
+    if (val != resultItemSelectionBorderRadius())
+    {
+        results_list->setBorderRadius(val);
+        plugin.settings()->setValue(keys.result_item_selection_border_radius, val);
+    }
+}
 
 double Window::resultItemSelectionBorderWidth() const { return results_list->borderWidth(); }
-void Window::setResultItemSelectionBorderWidth(double val) { results_list->setBorderWidth(val); }
+void Window::setResultItemSelectionBorderWidth(double val)
+{
+    if (val != resultItemSelectionBorderWidth())
+    {
+        results_list->setBorderWidth(val);
+        plugin.settings()->setValue(keys.result_item_selection_border_width, val);
+    }
+}
 
 uint Window::resultItemPadding() const { return results_list->padding(); }
-void Window::setResultItemPadding(uint val) { results_list->setPadding(val); }
+void Window::setResultItemPadding(uint val)
+{
+    if (val != resultItemPadding())
+    {
+        results_list->setPadding(val);
+        plugin.settings()->setValue(keys.result_item_padding, val);
+    }
+}
 
 uint Window::resultItemIconSize() const { return results_list->iconSize(); }
-void Window::setResultItemIconSize(uint val) { results_list->setIconSite(val); }
+void Window::setResultItemIconSize(uint val)
+{
+    if (val != resultItemIconSize())
+    {
+        results_list->setIconSize(val);
+        plugin.settings()->setValue(keys.result_item_icon_size, val);
+    }
+}
 
 uint Window::resultItemTextFontSize() const { return results_list->textFontSize(); }
-void Window::setResultItemTextFontSize(uint val) { results_list->setTextFontSize(val); }
+void Window::setResultItemTextFontSize(uint val)
+{
+    if (val != resultItemTextFontSize())
+    {
+        results_list->setTextFontSize(val);
+        plugin.settings()->setValue(keys.result_item_text_font_size, val);
+    }
+}
 
 uint Window::resultItemSubtextFontSize() const { return results_list->subtextFontSize(); }
-void Window::setResultItemSubtextFontSize(uint val) { results_list->setSubextFontSize(val); }
+void Window::setResultItemSubtextFontSize(uint val)
+{
+    if (val != resultItemSubtextFontSize())
+    {
+        results_list->setSubtextFontSize(val);
+        plugin.settings()->setValue(keys.result_item_subtext_font_size, val);
+    }
+}
 
 uint Window::resultItemHorizontalSpace() const { return results_list->horizonzalSpacing(); }
-void Window::setResultItemHorizontalSpace(uint val) { results_list->setHorizonzalSpacing(val); }
+void Window::setResultItemHorizontalSpace(uint val)
+{
+    if (val != resultItemHorizontalSpace())
+    {
+        results_list->setHorizonzalSpacing(val);
+        plugin.settings()->setValue(keys.result_item_horizontal_spacing, val);
+    }
+}
 
 uint Window::resultItemVerticalSpace() const { return results_list->verticalSpacing(); }
-void Window::setResultItemVerticalSpace(uint val) { results_list->setVerticalSpacing(val); }
+void Window::setResultItemVerticalSpace(uint val)
+{
+    if (val != resultItemVerticalSpace())
+    {
+        results_list->setVerticalSpacing(val);
+        plugin.settings()->setValue(keys.result_item_vertical_spacing, val);
+    }
+}
 
 
 double Window::actionItemSelectionBorderRadius() const { return actions_list->borderRadius(); }
-void Window::setActionItemSelectionBorderRadius(double val) { actions_list->setBorderRadius(val); }
+void Window::setActionItemSelectionBorderRadius(double val)
+{
+    if (val != actionItemSelectionBorderRadius())
+    {
+        actions_list->setBorderRadius(val);
+        plugin.settings()->setValue(keys.action_item_selection_border_radius, val);
+    }
+}
 
 double Window::actionItemSelectionBorderWidth() const { return actions_list->borderWidth(); }
-void Window::setActionItemSelectionBorderWidth(double val) { actions_list->setBorderWidth(val); }
+void Window::setActionItemSelectionBorderWidth(double val)
+{
+    if (val != actionItemSelectionBorderWidth())
+    {
+        actions_list->setBorderWidth(val);
+        plugin.settings()->setValue(keys.action_item_selection_border_width, val);
+    }
+}
 
 uint Window::actionItemPadding() const { return actions_list->padding(); }
-void Window::setActionItemPadding(uint val) { actions_list->setPadding(val); }
+void Window::setActionItemPadding(uint val)
+{
+    if (val != actionItemPadding())
+    {
+        actions_list->setPadding(val);
+        plugin.settings()->setValue(keys.action_item_padding, val);
+    }
+}
 
 uint Window::actionItemFontSize() const { return actions_list->textFontSize(); }
-void Window::setActionItemFontSize(uint val) { actions_list->setTextFontSize(val); }
+void Window::setActionItemFontSize(uint val)
+{
+    if (val != actionItemFontSize())
+    {
+        actions_list->setTextFontSize(val);
+        plugin.settings()->setValue(keys.action_item_font_size, val);
+    }
+}
 
 
 

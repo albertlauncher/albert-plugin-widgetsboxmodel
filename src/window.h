@@ -206,7 +206,6 @@ public:
     double inputBorderWidth() const;
     void setInputBorderWidth(double);
 
-
     uint inputFontSize() const;
     void setInputFontSize(uint);
 
@@ -241,7 +240,6 @@ public:
 
     double actionItemSelectionBorderWidth() const;
     void setActionItemSelectionBorderWidth(double);
-
 
     uint actionItemFontSize() const;
     void setActionItemFontSize(uint);

@@ -47,7 +47,7 @@ ItemDelegateBase *ResultsList::delegate() const { return delegate_; }
 
 uint ResultsList::subtextFontSize() const { return delegate_->subtext_font.pointSize(); }
 
-void ResultsList::setSubextFontSize(uint v)
+void ResultsList::setSubtextFontSize(uint v)
 {
     delegate_->subtext_font.setPointSize(v);
     delegate_->subtext_font_metrics = QFontMetrics(delegate_->subtext_font);
@@ -72,7 +72,7 @@ void ResultsList::setVerticalSpacing(uint v) { delegate_->vertical_spacing = v; 
 
 uint ResultsList::iconSize() const { return delegate_->icon_size; }
 
-void ResultsList::setIconSite(uint v) { delegate_->icon_size = v; relayout(); }
+void ResultsList::setIconSize(uint v) { delegate_->icon_size = v; relayout(); }
 
 //--------------------------------------------------------------------------------------------------
 

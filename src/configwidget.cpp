@@ -175,13 +175,14 @@ ConfigWidget::ConfigWidget(Window &_window):
                &Window::setDebugMode,
                &Window::debugModeChanged);
 
-    connect(&window, &Window::debugModeChanged,
-            ui.pushButton_winprop, &QPushButton::setEnabled);
-
     connect(ui.pushButton_winprop, &QPushButton::pressed, this, [this]
     {
         auto w = new QWidget;
-        auto wl = new QVBoxLayout(w);
+        auto wl = new QHBoxLayout(w);
+        auto vll = new QVBoxLayout(w);
+        auto vlr = new QVBoxLayout(w);
+        wl->addLayout(vll);
+        wl->addLayout(vlr);
 
         auto b = new QGroupBox(tr("Window"));
         auto bl = new QFormLayout(b);
@@ -197,7 +198,9 @@ ConfigWidget::ConfigWidget(Window &_window):
                                         &Window::windowWidth, &Window::setWindowWidth);
         sb->setSingleStep(10);
         QSignalBlocker block(sb);  // setRange emits value change
-        sb->setRange(100, 9999);
+        sb->setMinimum(320);
+        sb->setMaximum(1280);
+        sb->setValue(window.windowWidth());
 
         addPixelMetricSpinBox(bl, tr("Border radius"), &window,
                               &Window::windowBorderRadius, &Window::setWindowBorderRadius);
@@ -211,7 +214,7 @@ ConfigWidget::ConfigWidget(Window &_window):
         addPixelMetricSpinBox(bl, tr("Spacing"), &window,
                               &Window::windowSpacing, &Window::setWindowSpacing);
 
-        wl->addWidget(b);
+        vll->addWidget(b);
         b = new QGroupBox(tr("Input"));
         bl = new QFormLayout(b);
 
@@ -227,7 +230,7 @@ ConfigWidget::ConfigWidget(Window &_window):
         addPixelMetricSpinBox(bl, tr("Padding"), &window,
                               &Window::inputPadding, &Window::setInputPadding);
 
-        wl->addWidget(b);
+        vll->addWidget(b);
         b = new QGroupBox(tr("Results"));
         bl = new QFormLayout(b);
 
@@ -255,7 +258,7 @@ ConfigWidget::ConfigWidget(Window &_window):
         addPixelMetricSpinBox(bl, tr("Vertical spacing"), &window,
                               &Window::resultItemVerticalSpace, &Window::setResultItemVerticalSpace);
 
-        wl->addWidget(b);
+        vlr->addWidget(b);
         b = new QGroupBox(tr("Actions"));
         bl = new QFormLayout(b);
 
@@ -271,7 +274,7 @@ ConfigWidget::ConfigWidget(Window &_window):
         addPixelMetricSpinBox(bl, tr("Padding"), &window,
                               &Window::actionItemPadding, &Window::setActionItemPadding);
 
-        wl->addWidget(b);
+        vlr->addWidget(b);
         w->setWindowTitle(tr("Window properties"));
         w->setWindowModality(Qt::WindowModality::WindowModal);
         w->setAttribute(Qt::WA_DeleteOnClose);
