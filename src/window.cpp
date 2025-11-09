@@ -578,24 +578,24 @@ void Window::initializeStatemachine()
     //
 
     // for (auto &[state, name] : initializer_list<pair<QState*, QString>>{
-    //          {s_settings_button_hidden, "SB hidden"},
-    //          {s_settings_button_visible, "SB visible"},
-    //          {s_settings_button_highlight, "SB higlight"},
-    //          {s_settings_button_highlight_delay, "SB delay"},
-    //          {s_settings_button_slow, "SB slow"},
-    //          {s_settings_button_fast, "SB fast"},
+    //          {s_settings_button_hidden, u"SB hidden"_s},
+    //          {s_settings_button_visible, u"SB visible"_s},
+    //          {s_settings_button_highlight, u"SB higlight"_s},
+    //          {s_settings_button_highlight_delay, u"SB delay"_s},
+    //          {s_settings_button_slow, u"SB slow"_s},
+    //          {s_settings_button_fast, u"SB fast"_s},
 
-    //          {s_results_hidden, "RESULTS hidden"},
-    //          {s_results_disabled, "RESULTS disabled"},
-    //          {s_results_matches, "RESULTS matches"},
-    //          {s_results_fallbacks, "RESULTS fallbacks"},
+    //          {s_results_hidden, u"RESULTS hidden"_s},
+    //          {s_results_disabled, u"RESULTS disabled"_s},
+    //          {s_results_matches, u"RESULTS matches"_s},
+    //          {s_results_fallbacks, u"RESULTS fallbacks"_s},
 
-    //          {s_actions_hidden, "ACTIONS hidden"},
-    //          {s_actions_visible, "ACTIONS visible"}
+    //          {s_actions_hidden, u"ACTIONS hidden"_s},
+    //          {s_actions_visible, u"ACTIONS visible"_s}
     //      })
     // {
     //     QObject::connect(state, &QState::entered, this, [name]{ CRIT << ">>>> ENTER" << name; });
-    //     //QObject::connect(state, &QState::exited, this, [name]{ CRIT << "<<<< EXIT" << name; });
+    //     QObject::connect(state, &QState::exited, this, [name]{ CRIT << "<<<< EXIT" << name; });
     // }
 
     // connect(input_line, &InputLine::textChanged, this, []{ CRIT << "InputLine::textChanged";});
