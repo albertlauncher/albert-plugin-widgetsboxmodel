@@ -32,10 +32,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Quit on close</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Hide on focus out</source>
         <translation></translation>
     </message>

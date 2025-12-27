@@ -93,7 +93,6 @@ private:
     bool hideOnFocusLoss_;
     bool showCentered_;
     bool followCursor_;
-    bool quitOnClose_;
     bool shadow_size_;
     bool shadow_offset_;
     bool edit_mode_;
@@ -157,9 +156,6 @@ public:
 
     uint maxResults() const;
     void setMaxResults(uint max);
-
-    bool quitOnClose() const;
-    void setQuitOnClose(bool b = true);
 
     bool showCentered() const;
     void setShowCentered(bool b = true);

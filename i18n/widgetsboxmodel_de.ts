@@ -32,10 +32,6 @@
         <translation>Lassen Sie Albert über allen Top-Level-Fenstern bleiben.</translation>
     </message>
     <message>
-        <source>Quit on close</source>
-        <translation>Beim Schließen beenden</translation>
-    </message>
-    <message>
         <source>Hide on focus out</source>
         <translation>Beim Fokusverlust verbergen</translation>
     </message>
