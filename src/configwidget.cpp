@@ -152,12 +152,6 @@ ConfigWidget::ConfigWidget(Window &_window):
     connect(&window, &Window::maxResultsChanged,
             ui.spinBox_results, &QSpinBox::setValue);
 
-    bindWidget(ui.checkBox_quit_on_close,
-               &window,
-               &Window::quitOnClose,
-               &Window::setQuitOnClose,
-               &Window::quitOnCloseChanged);
-
     bindWidget(ui.checkBox_input_method,
                &window,
                &Window::disableInputMethod,

@@ -332,9 +332,6 @@ void Window::initializeProperties()
     setMaxResults(
         s->value(keys.max_results,
                  defaults.max_results).toUInt());
-    setQuitOnClose(
-        s->value(keys.quit_on_close,
-                 defaults.quit_on_close).toBool());
     setShowCentered(
         s->value(keys.centered,
                  defaults.centered).toBool());
@@ -1115,12 +1112,7 @@ bool Window::event(QEvent *event)
     }
 
     else if (event->type() == QEvent::Close)
-    {
-        if(quitOnClose_)
-            qApp->quit();
-        else
-            hide();
-    }
+        hide();
 
     else if (event->type() == QEvent::WindowActivate)
     {
@@ -1484,17 +1476,6 @@ void Window::setMaxResults(uint val)
     results_list->setMaxItems(val);
     plugin.settings()->setValue(keys.max_results, val);
     emit maxResultsChanged(val);
-}
-
-bool Window::quitOnClose() const { return quitOnClose_; }
-void Window::setQuitOnClose(bool val)
-{
-    if (quitOnClose() == val)
-        return;
-
-    quitOnClose_ = val;
-    plugin.settings()->setValue(keys.quit_on_close, val);
-    emit quitOnCloseChanged(val);
 }
 
 bool Window::showCentered() const { return showCentered_; }

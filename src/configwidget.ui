@@ -88,35 +88,6 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QLabel" name="label_quit_on_close">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Quit on close</string>
-     </property>
-     <property name="buddy">
-      <cstring>checkBox_quit_on_close</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="checkBox_quit_on_close">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string notr="true">Quit the application when closing Albert. Default behavior is to hide the window.</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
     <widget class="QLabel" name="label_hideOnFocusOut">
      <property name="text">
       <string>Hide on focus out</string>
@@ -126,7 +97,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="3" column="1">
     <widget class="QCheckBox" name="checkBox_hideOnFocusOut">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -139,7 +110,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label_center">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -155,7 +126,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="4" column="1">
     <widget class="QCheckBox" name="checkBox_center">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -168,7 +139,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_followCursor">
      <property name="text">
       <string>Center on active screen</string>
@@ -178,7 +149,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="5" column="1">
     <widget class="QCheckBox" name="checkBox_followCursor">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -194,7 +165,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_theme_light">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -210,7 +181,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="6" column="1">
     <widget class="QComboBox" name="comboBox_theme_light">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -223,7 +194,7 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_theme_dark">
      <property name="text">
       <string>Dark theme</string>
@@ -233,7 +204,7 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="7" column="1">
     <widget class="QComboBox" name="comboBox_theme_dark">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -246,7 +217,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="label_results">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -262,7 +233,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="8" column="1">
     <widget class="QSpinBox" name="spinBox_results">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -281,7 +252,7 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="9" column="0">
     <widget class="QLabel" name="label_scrollbar">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -297,7 +268,7 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="9" column="1">
     <widget class="QCheckBox" name="checkBox_scrollbar">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -310,7 +281,7 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_input_method">
      <property name="text">
       <string>Disable input method</string>
@@ -320,7 +291,7 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
+   <item row="10" column="1">
     <widget class="QCheckBox" name="checkBox_input_method">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -330,7 +301,7 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="label_debug">
      <property name="text">
       <string>Debug mode</string>
@@ -340,7 +311,7 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="1">
+   <item row="11" column="1">
     <widget class="QCheckBox" name="checkBox_debug">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -353,7 +324,7 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
+   <item row="12" column="0">
     <widget class="QLabel" name="label_winprop">
      <property name="text">
       <string>Window properties</string>
@@ -363,7 +334,7 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="1">
+   <item row="12" column="1">
     <widget class="QPushButton" name="pushButton_winprop">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -382,7 +353,6 @@
   <tabstop>checkBox_history_search</tabstop>
   <tabstop>checkBox_clearOnHide</tabstop>
   <tabstop>checkBox_onTop</tabstop>
-  <tabstop>checkBox_quit_on_close</tabstop>
   <tabstop>checkBox_hideOnFocusOut</tabstop>
   <tabstop>checkBox_center</tabstop>
   <tabstop>checkBox_followCursor</tabstop>
