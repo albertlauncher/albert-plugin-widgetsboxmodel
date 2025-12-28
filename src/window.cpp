@@ -139,7 +139,7 @@ static const struct {
     const char *theme_light                            = "lightTheme";
     const char *disable_input_method                   = "disable_input_method";
 
-    const char* window_shadow_size                     = "window_background_brush";
+    const char* window_shadow_size                     = "window_shadow_size";
     const char* window_shadow_offset                   = "window_shadow_offset";
     const char* window_shadow_brush                    = "window_shadow_brush";
 
@@ -524,13 +524,13 @@ static void setModelMemorySafe(QAbstractItemView *v, QAbstractItemModel *m)
         delete dm;
 }
 
-inline static bool isActive(detail::Query *query) { return query->execution().isActive(); }
+inline static bool isActive(detail::Query *query) { return query && query->execution().isActive(); }
 
-inline static bool isGlobal(detail::Query *query) { return query->trigger().isEmpty(); }
+inline static bool isGlobal(detail::Query *query) { return query && query->trigger().isEmpty(); }
 
 inline static bool hasMatches(detail::Query *query) { return query->matches().count() > 0; }
 
-inline static bool hasFallbacks(detail::Query *query) { return query->fallbacks().count() > 0; }
+inline static bool hasFallbacks(detail::Query *query) { return query && query->fallbacks().count() > 0; }
 
 void Window::initializeStatemachine()
 {
