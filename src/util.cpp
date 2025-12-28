@@ -7,7 +7,7 @@
 
 bool haveDarkSystemPalette()
 {
-    auto pal = QApplication::style()->standardPalette();
+    auto pal = QApplication::palette();
     return pal.color(QPalette::WindowText).lightness()
            > pal.color(QPalette::Window).lightness();
 }

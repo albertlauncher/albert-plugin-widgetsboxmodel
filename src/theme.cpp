@@ -11,7 +11,7 @@ using namespace std;
 
 
 Theme::Theme():
-    Theme(QApplication::style()->standardPalette())
+    Theme(QApplication::palette())
 {}
 
 Theme::Theme(const QPalette &p):
