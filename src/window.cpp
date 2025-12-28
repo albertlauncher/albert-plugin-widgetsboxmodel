@@ -139,7 +139,7 @@ static const struct {
     const char *theme_light                            = "lightTheme";
     const char *disable_input_method                   = "disable_input_method";
 
-    const char* window_shadow_size                     = "window_background_brush";
+    const char* window_shadow_size                     = "window_shadow_size";
     const char* window_shadow_offset                   = "window_shadow_offset";
     const char* window_shadow_brush                    = "window_shadow_brush";
 
