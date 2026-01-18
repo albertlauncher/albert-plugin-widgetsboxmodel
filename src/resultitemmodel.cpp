@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <albert/extension.h>
 #include <albert/frontend.h>
-#include <albert/iconutil.h>
+#include <albert/icon.h>
 #include <albert/item.h>
 #include <albert/logging.h>
 #include <albert/query.h>
@@ -130,7 +130,7 @@ QVariant ResultItemsModel::data(const QModelIndex &index, int role) const
     case IconRole:
     {
         try {
-            return qIcon(item->icon());
+            return Icon::qIcon(item->icon());
         } catch (const exception &e) {
             WARN << "Exception in Item::makeIcon:" << e.what();
         }

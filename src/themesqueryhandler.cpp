@@ -2,7 +2,7 @@
 
 #include "themesqueryhandler.h"
 #include "window.h"
-#include <albert/iconutil.h>
+#include <albert/icon.h>
 #include <albert/matcher.h>
 #include <albert/standarditem.h>
 #include <albert/systemutil.h>
@@ -38,7 +38,7 @@ static vector<Action> makeActions(Window *window, const QString& theme_name)
     return actions;
 }
 
-static unique_ptr<Icon> makeIcon() { return makeGraphemeIcon(u"🎨"_s); }
+static unique_ptr<Icon> makeIcon() { return Icon::grapheme(u"🎨"_s); }
 
 vector<RankItem> ThemesQueryHandler::rankItems(QueryContext &ctx)
 {
