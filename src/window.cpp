@@ -41,15 +41,16 @@ using namespace std;
 
 namespace  {
 
-static const struct {
+const auto &themes_dir_name = "themes";
+const double settings_button_rps_idle = 0.2;
+const double settings_button_rps_busy = 0.5;
+const unsigned settings_button_rps_animation_duration = 3000;
+const unsigned settings_button_fade_animation_duration = 500;
+const unsigned settings_button_highlight_animation_duration = 1000;
+
+const struct {
 
     using ColorRole = QPalette::ColorRole;
-
-    const double    settings_button_rps_idle = 0.2;
-    const double    settings_button_rps_busy = 0.5;
-    const unsigned  settings_button_rps_animation_duration = 3000;
-    const unsigned  settings_button_fade_animation_duration = 500;
-    const unsigned  settings_button_highlight_animation_duration = 1000;
 
     const bool      always_on_top                               = true;
     const bool      centered                                    = true;
@@ -119,7 +120,7 @@ static const struct {
 } defaults;
 
 
-static const struct {
+const struct {
 
     const char* window_position                        = "windowPosition";
 
@@ -769,7 +770,7 @@ void Window::initializeStatemachine()
         color_animation_ = make_unique<QPropertyAnimation>(settings_button, "color");
         color_animation_->setEndValue(settings_button_color_);
         color_animation_->setEasingCurve(QEasingCurve::OutQuad);
-        color_animation_->setDuration(defaults.settings_button_fade_animation_duration);
+        color_animation_->setDuration(settings_button_fade_animation_duration);
         color_animation_->start();
     });
 
@@ -778,23 +779,23 @@ void Window::initializeStatemachine()
         color_animation_ = make_unique<QPropertyAnimation>(settings_button, "color");
         color_animation_->setEndValue(settings_button_color_highlight_);
         color_animation_->setEasingCurve(QEasingCurve::OutQuad);
-        color_animation_->setDuration(defaults.settings_button_highlight_animation_duration);
+        color_animation_->setDuration(settings_button_highlight_animation_duration);
         color_animation_->start();
     });
 
     QObject::connect(s_settings_button_slow, &QState::entered, this, [this]{
         speed_animation_ = make_unique<QPropertyAnimation>(settings_button, "speed");
-        speed_animation_->setEndValue(defaults.settings_button_rps_idle);
+        speed_animation_->setEndValue(settings_button_rps_idle);
         speed_animation_->setEasingCurve(QEasingCurve::OutQuad);
-        speed_animation_->setDuration(defaults.settings_button_rps_animation_duration);
+        speed_animation_->setDuration(settings_button_rps_animation_duration);
         speed_animation_->start();
     });
 
     QObject::connect(s_settings_button_fast, &QState::entered, this, [this]{
         speed_animation_ = make_unique<QPropertyAnimation>(settings_button, "speed");
-        speed_animation_->setEndValue(defaults.settings_button_rps_busy);
+        speed_animation_->setEndValue(settings_button_rps_busy);
         speed_animation_->setEasingCurve(QEasingCurve::InOutQuad);
-        speed_animation_->setDuration(defaults.settings_button_rps_animation_duration);
+        speed_animation_->setDuration(settings_button_rps_animation_duration);
         speed_animation_->start();
     });
 
@@ -983,8 +984,9 @@ map<QString, QString> Window::findThemes() const
 {
     map<QString, QString> t;
     for (const auto &path : plugin.dataLocations())
-        for (const auto theme_files
-             = QDir(path / "themes").entryInfoList({u"*.ini"_s}, QDir::Files | QDir::NoSymLinks);
+        for (const auto theme_files = QDir(path / themes_dir_name)
+                                          .entryInfoList({u"*.ini"_s},
+                                                         QDir::Files | QDir::NoSymLinks);
              const auto &ini_file_info : theme_files)
             t.emplace(ini_file_info.baseName(), ini_file_info.canonicalFilePath());
     return t;
