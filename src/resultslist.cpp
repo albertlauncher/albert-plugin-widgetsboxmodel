@@ -144,18 +144,18 @@ void ResultsListDelegate::paint(QPainter *p,
                                                          subtext_rect.width());
 
     QPixmap pm;
-    if (const auto icon = i.data(IconRole).value<QIcon>();
-        icon.isNull())
-        WARN << "Item retured null icon:"
-             << i.data(IdentifierRole).value<QString>();
-    else if (const auto icon_name = icon.name();
-        icon_name.isEmpty())
-        WARN << "Item has no icon name set. Refusing to use icon without a cache key:"
-             << i.data(IdentifierRole).value<QString>();
-    else if (const auto cache_key = u"%1@%2x%3"_s.arg(icon_name).arg(icon_size).arg(o.widget->devicePixelRatioF());
-            !QPixmapCache::find(cache_key, &pm))
+    if (const auto cache_key = u"%1@%2x%3"_s
+                                   .arg(i.data(IdentifierRole).toString())
+                                   .arg(icon_size)
+                                   .arg(o.widget->devicePixelRatioF());
+        !QPixmapCache::find(cache_key, &pm))
     {
-        pm = icon.pixmap(QSize(icon_size, icon_size), o.widget->devicePixelRatioF());
+        if (const auto icon = i.data(IconRole).value<QIcon>();
+            icon.isNull())
+            WARN << "Item retured null icon:"
+                 << i.data(IdentifierRole).value<QString>();
+        else
+            pm = icon.pixmap(QSize(icon_size, icon_size), o.widget->devicePixelRatioF());
         QPixmapCache::insert(cache_key, pm);
     }
 
