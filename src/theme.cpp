@@ -1,11 +1,14 @@
 // Copyright (c) 2024-2025 Manuel Schneider
 
 #include "theme.h"
-#include <albert/logging.h>
 #include <QApplication>
+#include <QLinearGradient>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStyle>
+#include <albert/logging.h>
 #include <map>
+#include <ranges>
 using namespace Qt::StringLiterals;
 using namespace std;
 
@@ -84,20 +87,70 @@ struct {
 
 }
 
-static QBrush parseBrush(const QString &s)
-{
-    if (s.isEmpty())
-        return {};
 
-    else if (s[0] == u'#')
+static optional<pair<QString, multimap<QString, QString>>> parseFunction(const QString &s)
+{
+    static const auto re_fn = QRegularExpression(R"(([\w-]+)\((.+)\))"_L1);
+    static const auto re_arg = QRegularExpression(R"(^(?:\s*(\w+)\s*:\s*(.+))\s*$)"_L1);
+
+    auto match = re_fn.match(s);
+    if (!match.hasMatch())
+        return nullopt;
+
+    const auto fn_name = match.captured(1);
+    multimap<QString, QString> args;
+    for (const auto &arg : match.captured(2).simplified().split(","_L1))
     {
-        QColor c(s);
-        return c.isValid() ? QBrush(c) : QBrush{};
+        match = re_arg.match(arg);
+        if (!match.hasMatch())
+        {
+            WARN << "Invalid argument:" << arg;
+            return nullopt;
+        }
+        args.emplace(match.captured(1), match.captured(2));
     }
 
-    // for (int cr = 0; cr < (int)QPalette::NColorRoles; ++cr)
-    //     if (s == QMetaEnum::fromType<QPalette::ColorRole>().key(cr))
-    //         return palette.color(QPalette::Active, static_cast<QPalette::ColorRole>(cr));
+    return pair{fn_name, args};
+}
+
+static QBrush parseBrush(const QString &s)
+{
+    if (const auto opt = parseFunction(s); opt)
+    {
+        const auto &[fn, args] = *opt;
+        if (fn == "linear-gradient"_L1)
+        {
+            const auto x1 = args.equal_range(u"x1"_s).first->second.toDouble();
+            const auto y1 = args.equal_range(u"y1"_s).first->second.toDouble();
+            const auto x2 = args.equal_range(u"x2"_s).first->second.toDouble();
+            const auto y2 = args.equal_range(u"y2"_s).first->second.toDouble();
+
+            QLinearGradient lg(x1, y1, x2, y2);
+
+            for (const auto &[beg, end] = args.equal_range(u"stop"_s);
+                 const auto &stop_arg : ranges::subrange(beg, end) | views::values)
+            {
+                const auto stop_args = stop_arg.split(u" "_s, Qt::SkipEmptyParts);
+                if (stop_args.size() != 2)
+                {
+                    WARN << "Invalid gradient stop:" << stop_arg;
+                    return Qt::red;
+                }
+                else
+                    lg.setColorAt(stop_args[0].toDouble(), QColor(stop_args[1]));
+            }
+
+            lg.setCoordinateMode(QGradient::ObjectMode);
+            return lg;
+        }
+        // else if (fn == "radial-gradient"_L1)
+        // {
+        // }
+        else
+            WARN << "Invalid brush function:" << s;
+
+        return {};
+    }
 
     else if (QColor c(s); c.isValid())
         return c;
@@ -115,10 +168,13 @@ Theme Theme::read(const QString &path)
 
     map<QString, QString> kv;
     for (const auto &k : ini.allKeys())
-        if (auto v = ini.value(k).toString().trimmed(); v.isEmpty())
-            WARN << "Ignoring empty entry" << k;
+        if (auto v = ini.value(k);
+            v.typeId() == qMetaTypeId<QStringList>())
+            kv.emplace(k, v.toStringList().join(u","_s));
+        else if(v.typeId() == qMetaTypeId<QString>())
+            kv.emplace(k, v.toString().trimmed());
         else
-            kv.emplace(k, v);
+            WARN << "Ignoring unsupported entry" << k;
 
 
     // Resolve and read values
