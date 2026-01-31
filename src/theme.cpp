@@ -26,7 +26,7 @@ Theme::Theme(const QPalette &p):
     input_background_brush                  (p.brush(QPalette::Base)),
     input_border_brush                      (p.brush(QPalette::Highlight)),
     input_trigger_color                     (p.color(QPalette::Highlight)),
-    input_hint_color                        (p.color(QPalette::Button)),
+    input_hint_color                        (p.color(QPalette::PlaceholderText)),
     settings_button_color                   (p.color(QPalette::Button)), // Placeholder is transparent on some systems
     settings_button_highlight_color         (p.color(QPalette::Highlight)),
     result_item_selection_background_brush  (p.brush(QPalette::Highlight)),
