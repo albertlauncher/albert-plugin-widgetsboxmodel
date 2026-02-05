@@ -6,34 +6,50 @@
 #include <QMetaEnum>
 #include <QHeaderView>
 #include <QStyleFactory>
+using namespace std;
 
-static std::array<QPalette::ColorGroup, 3> colorGroups{
+static array colorGroups{
     QPalette::Active,
     QPalette::Inactive,
     QPalette::Disabled
 };
 
-static std::array<QPalette::ColorRole, 20> colorRoles{
-    QPalette::AlternateBase,
-    QPalette::Base,
-    QPalette::BrightText,
-    QPalette::Button,
-    QPalette::ButtonText,
-    QPalette::Dark,
+static array colorRoles{
+
+
+
+    QPalette::Base,  // background color for text widgets, combobox drop down and toolbar handles
+    QPalette::AlternateBase,  // alternate background color in views with alternating row color
+
+    QPalette::Window,      // A general background color.
+
+    QPalette::Light,       // Lighter than Button color.
+    QPalette::Midlight,    // Between Button and Light.
+    QPalette::Button,      // This background can be different from Window
+    QPalette::Mid,         // Between Button and Dark.
+    QPalette::Dark,        // Darker than Button.
+    QPalette::Shadow,      // A very dark color. By default, the shadow color is Qt::black.
+
+
+    QPalette::Text,           // used with the Base color.
+    QPalette::WindowText,  // used with the Window color.
+    QPalette::ButtonText,  // used with the Button color.
+    QPalette::BrightText,  // A text color that is very different from WindowText (invert)
+    QPalette::HighlightedText,  // used with the Highlight color.
     QPalette::Highlight,
-    QPalette::HighlightedText,
-    QPalette::Light,
+    QPalette::Accent,
+
+
+
+
+
+    QPalette::ToolTipBase,  //
+    QPalette::ToolTipText,  // used with the ToolTipBase color.
+
+    QPalette::PlaceholderText,
+
     QPalette::Link,
     QPalette::LinkVisited,
-    QPalette::Mid,
-    QPalette::Midlight,
-    QPalette::PlaceholderText,
-    QPalette::Shadow,
-    QPalette::Text,
-    QPalette::ToolTipBase,
-    QPalette::ToolTipText,
-    QPalette::Window,
-    QPalette::WindowText
 };
 
 static QString toString(const QColor &color)

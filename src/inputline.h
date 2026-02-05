@@ -1,10 +1,11 @@
 // Copyright (c) 2022-2025 Manuel Schneider
 
 #pragma once
-#include <QPlainTextEdit>
+#include "resizingqplaintextedit.h"
+#include <QColor>
 #include <albert/inputhistory.h>
 
-class InputLine : public QPlainTextEdit
+class InputLine : public ResizingQPlainTextEdit
 {
     Q_OBJECT
 
@@ -24,14 +25,14 @@ public:
     QString text() const;
     void setText(QString);
 
-    uint fontSize() const;
-    void setFontSize(uint);
-
-    QColor triggerColor() const;
+    const QColor &triggerColor() const;
     void setTriggerColor(const QColor &);
 
-    QColor hintColor() const;
-    void setHintColor(const QColor &);
+    const QColor &inputActionColor() const;
+    void setInputActionColor(const QColor &);
+
+    const QColor &inputHintColor() const;
+    void setInputHintColor(const QColor &);
 
     void next();
     void previous();
@@ -40,12 +41,13 @@ public:
     bool history_search;
     bool disable_input_method_;
 
-private:
 
-    void paintEvent(QPaintEvent *event) override;
+private:
+    bool event(QEvent *event) override;
     void hideEvent(QHideEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
     void inputMethodEvent(QInputMethodEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
     albert::detail::InputHistory history_;
     QString completion_;
@@ -54,8 +56,11 @@ private:
     uint trigger_length_;
     class TriggerHighlighter;
     TriggerHighlighter *highlighter_;
-    QColor hint_color_;
+
+    // Style
     QColor trigger_color_;
+    QColor input_action_color_;
+    QColor input_hint_color_;
 
 signals:
 

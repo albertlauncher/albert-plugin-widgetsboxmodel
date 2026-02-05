@@ -4,10 +4,10 @@
 #include <albert/generatorqueryhandler.h>
 class Window;
 
-class ThemesQueryHandler : public albert::GeneratorQueryHandler
+class StylesQueryHandler : public albert::GeneratorQueryHandler
 {
 public:
-    ThemesQueryHandler(Window *w);
+    StylesQueryHandler(Window *w);
     QString id() const override;
     QString name() const override;
     QString description() const override;

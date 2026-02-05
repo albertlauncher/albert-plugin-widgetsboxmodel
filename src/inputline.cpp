@@ -7,6 +7,7 @@
 #include <QSignalBlocker>
 #include <QSyntaxHighlighter>
 #include <albert/logging.h>
+using namespace Qt::StringLiterals;
 
 class InputLine::TriggerHighlighter : public QSyntaxHighlighter
 {
@@ -69,44 +70,23 @@ public:
 
 
 InputLine::InputLine(QWidget *parent):
-    QPlainTextEdit(parent),
+    ResizingQPlainTextEdit(parent),
     trigger_length_(0),
     highlighter_(new TriggerHighlighter(document(), this))
 {
-    document()->setDocumentMargin(1); // 0 would be optimal but clips bearing
-
-    setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setFrameStyle(QFrame::NoFrame);
     setWordWrapMode(QTextOption::NoWrap);
     viewport()->setAutoFillBackground(false);
 
-    connect(this, &QPlainTextEdit::textChanged,
+    connect(this, &InputLine::textChanged,
             this, &InputLine::textEdited);
 
     connect(this, &InputLine::textEdited, this, [this]{
         history_.resetIterator();
         user_text_ = text();
     });
-
-    // auto fixHeight = [this]{
-    //     INFO << "INPUTLINE fm lineSpacing" << fontMetrics().lineSpacing();
-    //     INFO << "INPUTLINE doc height" << document()->size().height();
-    //     INFO << "INPUTLINE doc margin" << document()->documentMargin();
-    //     int height = document()->size().height() ;//+ document()->documentMargin();
-    //     INFO << "Final height" << height;
-    //     setFixedHeight(height);
-    // };
-
-    connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
-            this,[this](const QSizeF &newSize)
-            {
-                // Looks like there is some more space needed. The scrollarea reserves space in full
-                // multiples of lines. Without the + 1 an additional line is reserved. Maybe some
-                // rounding issues or such.
-                setFixedHeight((int)newSize.height() * fontMetrics().lineSpacing()
-                               + 2 * (int)document()->documentMargin() + 1); // see comment above
-            });
 }
 
 const QString &InputLine::synopsis() const { return synopsis_; }
@@ -139,7 +119,7 @@ void InputLine::setText(QString t)
 {
     // setPlainText(t);  // Dont. Clears undo stack.
 
-    disconnect(this, &QPlainTextEdit::textChanged, this, &InputLine::textEdited);
+    disconnect(this, &InputLine::textChanged, this, &InputLine::textEdited);
 
     QTextCursor c{document()};
     c.beginEditBlock();
@@ -149,39 +129,7 @@ void InputLine::setText(QString t)
     c.endEditBlock();
     setTextCursor(c);
 
-    connect(this, &QPlainTextEdit::textChanged, this, &InputLine::textEdited);
-}
-
-uint InputLine::fontSize() const { return font().pointSize(); }
-
-void InputLine::setFontSize(uint val)
-{
-    auto f = font();
-    f.setPointSize(val);
-    setFont(f);
-    highlighter_->rehighlight(); // required because it sets hint advance
-
-    // setFixedHeight(fontMetrics().lineSpacing() + 2 * (int)document()->documentMargin());
-}
-
-QColor InputLine::triggerColor() const { return trigger_color_; }
-
-void InputLine::setTriggerColor(const QColor &val)
-{
-    if (trigger_color_ == val)
-        return;
-    trigger_color_ = val;
-    highlighter_->rehighlight();
-}
-
-QColor InputLine::hintColor() const { return hint_color_; }
-
-void InputLine::setHintColor(const QColor &val)
-{
-    if (hint_color_ == val)
-        return;
-    hint_color_ = val;
-    update();
+    connect(this, &InputLine::textChanged, this, &InputLine::textEdited);
 }
 
 void InputLine::next()
@@ -197,6 +145,13 @@ void InputLine::previous()
     setText(t.isNull() ? user_text_ : t);  // restore text at end
 }
 
+bool InputLine::event(QEvent *event)
+{
+    if (event->type() == QEvent::FontChange)
+        highlighter_->rehighlight(); // required because it sets hint advance, updates
+    return ResizingQPlainTextEdit::event(event);
+}
+
 void InputLine::paintEvent(QPaintEvent *event)
 {
     if (document()->size().height() == 1
@@ -210,8 +165,12 @@ void InputLine::paintEvent(QPaintEvent *event)
         else
             c.prepend(QChar::Space);
 
-        auto r = QRectF(contentsRect()).adjusted(highlighter_->formatted_text_length + 1,
-                                                 1, -1, -1); // 1xp document margin
+        const auto document_margin = document()->documentMargin();
+        auto r = QRectF(viewport()->contentsRect()).adjusted(highlighter_->formatted_text_length
+                                                     + document_margin,
+                                                 document_margin,
+                                                 -document_margin,
+                                                 -document_margin);
         auto c_width = fontMetrics().horizontalAdvance(c);
         if (c_width > r.width())
         {
@@ -220,7 +179,7 @@ void InputLine::paintEvent(QPaintEvent *event)
         }
 
         QPainter p(viewport());
-        p.setPen(hint_color_);
+        p.setPen(input_action_color_);
         p.drawText(r, Qt::TextSingleLine, c);
 
         if (synopsis_.length() > 0)
@@ -228,13 +187,13 @@ void InputLine::paintEvent(QPaintEvent *event)
             auto f = font();
             f.setWeight(QFont::Light);
             p.setFont(f);
+            p.setPen(input_hint_color_);
             if (fontMetrics().horizontalAdvance(synopsis()) + c_width < r.width())
                 p.drawText(r.adjusted(c_width, 0, 0, 0),
                            Qt::TextSingleLine | Qt::AlignRight,
                            synopsis());
         }
     }
-
 
     // qreal bearing_diff = 0;
     // if (!text().isEmpty())
@@ -264,7 +223,7 @@ void InputLine::hideEvent(QHideEvent *event)
     else
         selectAll();
 
-    QPlainTextEdit::hideEvent(event);
+    ResizingQPlainTextEdit::hideEvent(event);
 }
 
 void InputLine::keyPressEvent(QKeyEvent *event)
@@ -282,7 +241,7 @@ void InputLine::keyPressEvent(QKeyEvent *event)
         }
 #endif
     default:
-        QPlainTextEdit::keyPressEvent(event);
+        ResizingQPlainTextEdit::keyPressEvent(event);
     }
 }
 
@@ -293,5 +252,35 @@ void InputLine::inputMethodEvent(QInputMethodEvent *event)
         return event->accept();
     }
     else
-        QPlainTextEdit::inputMethodEvent(event);
+        ResizingQPlainTextEdit::inputMethodEvent(event);
+}
+
+const QColor &InputLine::triggerColor() const { return trigger_color_; }
+
+void InputLine::setTriggerColor(const QColor &v)
+{
+    if (trigger_color_ == v)
+        return;
+    trigger_color_ = v;
+    highlighter_->rehighlight();  // updates
+}
+
+const QColor &InputLine::inputActionColor() const { return input_action_color_; }
+
+void InputLine::setInputActionColor(const QColor &v)
+{
+    if (input_action_color_ == v)
+        return;
+    input_action_color_ = v;
+    update();
+}
+
+const QColor &InputLine::inputHintColor() const { return input_hint_color_; }
+
+void InputLine::setInputHintColor(const QColor &v)
+{
+    if (input_hint_color_ == v)
+        return;
+    input_hint_color_ = v;
+    update();
 }
