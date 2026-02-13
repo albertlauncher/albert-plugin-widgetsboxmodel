@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2025 Manuel Schneider
+// Copyright (c) 2014-2026 Manuel Schneider
 
 #include "primitives.h"
 #include "resultitemmodel.h"
@@ -7,8 +7,10 @@
 #include <QPainter>
 #include <QPixmapCache>
 #include <albert/logging.h>
+#include <chrono>
 using namespace Qt::StringLiterals;
 using namespace albert;
+using namespace std::chrono;
 using namespace std;
 
 
@@ -150,12 +152,20 @@ void ResultsListDelegate::paint(QPainter *p,
                                    .arg(o.widget->devicePixelRatioF());
         !QPixmapCache::find(cache_key, &pm))
     {
+        auto tp = system_clock::now();
         if (const auto icon = i.data(IconRole).value<QIcon>();
             icon.isNull())
             WARN << "Item retured null icon:"
                  << i.data(IdentifierRole).value<QString>();
         else
+        {
             pm = icon.pixmap(QSize(icon_size, icon_size), o.widget->devicePixelRatioF());
+            auto dur = duration_cast<milliseconds>(system_clock::now() - tp).count();
+            if (dur > 5)
+                WARN << u"Slow icon rendering: %1 ms - %2"_s.arg(dur).arg(icon.name());
+        }
+
+
         QPixmapCache::insert(cache_key, pm);
     }
 
