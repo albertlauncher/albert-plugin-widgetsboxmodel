@@ -26,6 +26,7 @@
 #include <QTimer>
 #include <QWindow>
 #include <albert/app.h>
+#include <albert/icon.h>
 #include <albert/logging.h>
 #include <albert/messagebox.h>
 #include <albert/plugininstance.h>
@@ -235,6 +236,9 @@ Window::Window(PluginInstance &p) :
             this, &Window::onSettingsButtonClick);
 
     QPixmapCache::setCacheLimit(1024 * 50);  // 50 MB
+
+    // Warm up call to prevent UI freeze (~50ms) on first use
+    Icon::grapheme(u"🔥"_s)->pixmap(QSize(32, 32), 1);
 }
 
 Window::~Window() {}
