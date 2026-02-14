@@ -19,10 +19,16 @@ void WindowFrame::paintEvent(QPaintEvent *event)
 
     if (!QPixmapCache::find(cacheKey(), &pm))
     {
-        auto dpr = devicePixelRatioF();
+        const auto dpr = devicePixelRatioF();
+
+        // Scale the brush such that we get the same result on different DPIs
+        auto brush = backgroundBrush();
+        QTransform t;
+        t.scale(dpr, dpr);
+        brush.setTransform(t);
 
         auto frame_pixmap = pixelPerfectRoundedRect(contentsRect().size() * dpr,
-                                                    backgroundBrush(),
+                                                    brush,
                                                     (int)(borderRadius() * dpr),
                                                     borderBrush(),
                                                     (int)(borderWidth() * dpr));
