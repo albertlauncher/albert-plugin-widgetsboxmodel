@@ -1,10 +1,10 @@
-// Copyright (c) 2022-2024 Manuel Schneider
+// Copyright (c) 2022-2026 Manuel Schneider
 
 #pragma once
-#include <albert/rankedqueryhandler.h>
+#include <albert/generatorqueryhandler.h>
 class Window;
 
-class ThemesQueryHandler : public albert::RankedQueryHandler
+class ThemesQueryHandler : public albert::GeneratorQueryHandler
 {
 public:
     ThemesQueryHandler(Window *w);
@@ -12,7 +12,7 @@ public:
     QString name() const override;
     QString description() const override;
     QString defaultTrigger() const override;
-    std::vector<albert::RankItem> rankItems(albert::QueryContext &) override;
+    albert::ItemGenerator items(albert::QueryContext &context) override;
 
 private:
     Window *window;

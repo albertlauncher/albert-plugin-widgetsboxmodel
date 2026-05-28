@@ -1,11 +1,13 @@
-// Copyright (c) 2022-2025 Manuel Schneider
+// Copyright (c) 2022-2026 Manuel Schneider
 
 #include "themesqueryhandler.h"
 #include "window.h"
+#include <QCoroGenerator>
 #include <albert/icon.h>
 #include <albert/matcher.h>
 #include <albert/standarditem.h>
 #include <albert/systemutil.h>
+#include <albert/usagescoring.h>
 using namespace Qt::StringLiterals;
 using namespace albert;
 using namespace std;
@@ -40,7 +42,7 @@ static vector<Action> makeActions(Window *window, const QString& theme_name)
 
 static unique_ptr<Icon> makeIcon() { return Icon::grapheme(u"🎨"_s); }
 
-vector<RankItem> ThemesQueryHandler::rankItems(QueryContext &ctx)
+ItemGenerator ThemesQueryHandler::items(QueryContext &ctx)
 {
     Matcher matcher(ctx);
     vector<RankItem> items;
@@ -58,7 +60,9 @@ vector<RankItem> ThemesQueryHandler::rankItems(QueryContext &ctx)
         if (const auto m = matcher.match(name); m)
         {
             auto actions = makeActions(window, name);
+
             actions.emplace_back(u"open"_s, Window::tr("Open theme file"), [path] { open(path); });
+
             items.emplace_back(StandardItem::make(u"theme_%1"_s.arg(name),
                                                   name,
                                                   path,
@@ -67,5 +71,6 @@ vector<RankItem> ThemesQueryHandler::rankItems(QueryContext &ctx)
                                m);
         }
 
-    return items;
+    ctx.usageScoring().modifyMatchScores(id(), items);
+    return lazySort(items);
 }
