@@ -2,6 +2,7 @@
 
 #pragma once
 #include <QAbstractListModel>
+#include <albert/query.h>
 #include <map>
 namespace albert{
 class QueryResult;
@@ -42,14 +43,13 @@ protected:
 class MatchItemsModel : public ResultItemsModel
 {
 public:
-
-    MatchItemsModel(const albert::QueryResults&, albert::QueryExecution&);
+    MatchItemsModel(albert::detail::Query &query);
 
     bool canFetchMore(const QModelIndex &) const override;
     void fetchMore(const QModelIndex &) override;
 
 protected:
 
-    albert::QueryExecution &query_execution;
+    albert::detail::Query &query;
 
 };

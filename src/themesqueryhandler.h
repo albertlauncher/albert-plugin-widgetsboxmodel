@@ -12,7 +12,7 @@ public:
     QString name() const override;
     QString description() const override;
     QString defaultTrigger() const override;
-    albert::ItemGenerator items(albert::QueryContext &context) override;
+    albert::ItemGenerator items(albert::QueryContext context) override;
 
 private:
     Window *window;

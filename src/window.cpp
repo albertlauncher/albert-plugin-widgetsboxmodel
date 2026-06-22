@@ -526,7 +526,7 @@ static void setModelMemorySafe(QAbstractItemView *v, QAbstractItemModel *m)
         delete dm;
 }
 
-inline static bool isActive(detail::Query *query) { return query && query->execution().isActive(); }
+inline static bool isActive(detail::Query *query) { return query && query->isActive(); }
 
 inline static bool isGlobal(detail::Query *query) { return query &&query->trigger().isEmpty(); }
 
@@ -826,7 +826,7 @@ void Window::initializeStatemachine()
 
     QObject::connect(s_results_matches, &QState::entered, this, [this]{
         keyboard_navigation_receiver = results_list;
-        setModelMemorySafe(results_list, new MatchItemsModel(current_query->matches(), current_query->execution()));
+        setModelMemorySafe(results_list, new MatchItemsModel(*current_query));
 
         connect(results_list, &ResizingList::activated, this, &Window::onMatchActivation);
         connect(actions_list, &ResizingList::activated, this, &Window::onMatchActionActivation);
@@ -957,7 +957,7 @@ void Window::setQuery(detail::Query *q)
     if(current_query)
     {
         disconnect(&current_query->matches(), nullptr, this, nullptr);
-        disconnect(&current_query->execution(), nullptr, this, nullptr);
+        disconnect(current_query, nullptr, this, nullptr);
     }
 
     current_query = q;
@@ -966,21 +966,19 @@ void Window::setQuery(detail::Query *q)
     if(q)
     {
         input_line->setTriggerLength(q->trigger().length());
-        input_line->setSynopsis(q->handler().synopsis(q->query()));
+        input_line->setSynopsis(q->synopsis());
         input_line->setCompletion();
 
         // Statemachine active state synchronization
-        connect(&current_query->execution(), &QueryExecution::activeChanged,
-                this, &Window::queryActiveChanged);
-        emit current_query->execution().activeChanged(current_query->execution().isActive());
+        connect(current_query, &detail::Query::activeChanged, this, &Window::queryActiveChanged);
+        connect(&current_query->matches(), &QueryResults::resultsInserted,
+                this, &Window::queryHasMatches,
+                Qt::SingleShotConnection);
 
-        // Statemachine hasMatches state synchronization
-        if (q->matches().count() > 0)
-            emit queryHasMatches();
-        else
-            connect(&current_query->matches(), &QueryResults::resultsInserted,
-                    this, &Window::queryHasMatches,
-                    Qt::SingleShotConnection);
+        // The model is set on first result, so there is no model that could call fetchMore yet.
+        // So we have to do this manually (if at all).
+        if (current_query->canFetchMore())
+            current_query->fetchMore();
     }
 }
 

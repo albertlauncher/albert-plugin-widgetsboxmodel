@@ -7,7 +7,6 @@
 #include <albert/matcher.h>
 #include <albert/standarditem.h>
 #include <albert/systemutil.h>
-#include <albert/usagescoring.h>
 using namespace Qt::StringLiterals;
 using namespace albert;
 using namespace std;
@@ -42,7 +41,7 @@ static vector<Action> makeActions(Window *window, const QString& theme_name)
 
 static unique_ptr<Icon> makeIcon() { return Icon::grapheme(u"🎨"_s); }
 
-ItemGenerator ThemesQueryHandler::items(QueryContext &ctx)
+ItemGenerator ThemesQueryHandler::items(QueryContext ctx)
 {
     Matcher matcher(ctx);
     vector<RankItem> items;
@@ -71,6 +70,5 @@ ItemGenerator ThemesQueryHandler::items(QueryContext &ctx)
                                m);
         }
 
-    ctx.usageScoring().modifyMatchScores(id(), items);
-    return lazySort(items);
+    return lazySort(::move(items), ctx.usageScoring());
 }

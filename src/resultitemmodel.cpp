@@ -158,16 +158,18 @@ QVariant ResultItemsModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-MatchItemsModel::MatchItemsModel(const albert::QueryResults &results, albert::QueryExecution &execution)
-    : ResultItemsModel(results)
-    , query_execution(execution) {}
+MatchItemsModel::MatchItemsModel(detail::Query &query) :
+    ResultItemsModel(query.matches()),
+    query(query)
+{}
 
 bool MatchItemsModel::canFetchMore(const QModelIndex &) const
 {
-    return query_execution.canFetchMore();
+    return !query.isActive() && query.canFetchMore();
 }
 
 void MatchItemsModel::fetchMore(const QModelIndex &)
 {
-    query_execution.fetchMore();
+    query.fetchMore();
 }
+
