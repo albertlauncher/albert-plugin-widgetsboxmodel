@@ -463,7 +463,7 @@ void Window::initializeWindowActions()
     auto *a = new QAction(tr("Settings"), this);
     a->setShortcuts({QKeySequence("Ctrl+,"_L1)});
     a->setShortcutVisibleInContextMenu(true);
-    connect(a, &QAction::triggered, this, [] { App::instance().showSettings(); });
+    connect(a, &QAction::triggered, this, [] { app().showSettings(); });
     addAction(a);
 
     a = new QAction(tr("Hide on focus out"), this);
@@ -903,7 +903,7 @@ void Window::postCustomEvent(EventType event_type)
 void Window::onSettingsButtonClick(Qt::MouseButton button)
 {
     if (button == Qt::LeftButton)
-        App::instance().showSettings();
+        app().showSettings();
 
     else if (button == Qt::RightButton)
     {
