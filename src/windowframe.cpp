@@ -73,8 +73,14 @@ void WindowFrame::paintEvent(QPaintEvent *event)
     event->accept();
 }
 
-QString WindowFrame::cacheKey() const {
- return QStringLiteral("_WindowFrame_%1x%2").arg(width()).arg(height()); }
+QString WindowFrame::cacheKey() const
+{
+    return QStringLiteral("_WindowFrame_%1x%2").arg(width()).arg(height());
+    return QStringLiteral("_WindowFrame_%1x%2@%3")
+        .arg(width())
+        .arg(height())
+        .arg(devicePixelRatioF());
+}
 
 void WindowFrame::onPropertiesChanged()
 {
