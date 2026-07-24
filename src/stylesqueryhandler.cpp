@@ -2,6 +2,7 @@
 
 #include "stylesqueryhandler.h"
 #include "window.h"
+#include <QCoroGenerator>
 #include <albert/icon.h>
 #include <albert/matcher.h>
 #include <albert/standarditem.h>
@@ -40,7 +41,7 @@ static vector<Action> makeActions(Window *window, const QString& name)
 
 static unique_ptr<Icon> makeIcon() { return Icon::grapheme(u"🎨"_s); }
 
-vector<RankItem> StylesQueryHandler::rankItems(QueryContext &ctx)
+ItemGenerator StylesQueryHandler::items(QueryContext ctx)
 {
     Matcher matcher(ctx);
     vector<RankItem> items;
@@ -73,5 +74,5 @@ vector<RankItem> StylesQueryHandler::rankItems(QueryContext &ctx)
                                m);
         }
 
-    return items;
+    return lazySort(items, ctx);
 }

@@ -4,6 +4,7 @@
 #include "debugoverlay.h"
 #include "frame.h"
 #include "inputline.h"
+#include "paletteeditor.h"
 #include "resizinglist.h"
 #include "resultitemmodel.h"
 #include "resultslist.h"
@@ -19,6 +20,7 @@
 #include <QMenu>
 #include <QPixmapCache>
 #include <QPropertyAnimation>
+#include <QPointer>
 #include <QSettings>
 #include <QStateMachine>
 #include <QStringListModel>
@@ -834,6 +836,12 @@ void Window::applyStyle(const QString& name)
 void Window::applyStyle(const Style &style)
 {
     QPixmapCache::clear();
+
+    // static QPointer<PaletteEditor> pe;
+    // if (pe)
+    //     pe->deleteLater();
+    // pe = new PaletteEditor(style.palette);
+    // pe->show();
 
     setPalette(style.palette);
 

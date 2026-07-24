@@ -3,7 +3,14 @@ project(widgetsboxmodel VERSION 8.21.0)
 
 find_package(Albert REQUIRED)
 
-albert_plugin(QT Widgets StateMachine Svg)
+albert_plugin(
+    QT
+        Widgets
+        StateMachine
+        Svg
+    LINK PRIVATE
+        QCoro6::Core
+)
 
 install(
     DIRECTORY "styles/"

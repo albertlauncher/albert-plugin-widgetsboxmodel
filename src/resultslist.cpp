@@ -129,6 +129,10 @@ void ResultsListDelegate::paint(QPainter *p,
     {
         auto tp = system_clock::now();
         pm = icon.pixmap(QSize(icon_size, icon_size), o.widget->devicePixelRatioF());
+        WARN << o.widget->devicePixelRatioF()
+             << pm.devicePixelRatio()
+             << pm.size()
+             << pm.deviceIndependentSize();
         auto dur = duration_cast<milliseconds>(system_clock::now() - tp).count();
         if (dur > 5)
             WARN << u"Slow icon rendering: %1 ms - %2"_s.arg(dur).arg(icon.name());
@@ -143,6 +147,8 @@ void ResultsListDelegate::paint(QPainter *p,
 
     // Draw selection
     ItemDelegateBase::paint(p, o, i);
+
+    INFO << pm.devicePixelRatio() << pm.size() << pm.deviceIndependentSize();
 
     // Draw icon (such that it is centered in the icon_rect)
     p->drawPixmap(
