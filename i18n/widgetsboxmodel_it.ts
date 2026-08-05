@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>Show the window on the active screen (the one containing the mouse cursor) rather than the primary one. This option applies when &quot;Show centered&quot; is activated, but also if the window has to be centered on another screen (e.g. because a display has been disconnected).</source>
-        <translation>Mostra la finestra sullo schermo attivo (quello che contiene il puntatore del mouse) invece che sullo schermo primario. Questa opzione si applica quando &quot;Mostra centrato&quot; è attivo, ma anche se la finestra dev&apos;essere centrata su un altro schermo (ad esempio perchè un display è stato scollegato).</translation>
+        <translation>Mostra la finestra sullo schermo attivo (quello che contiene il puntatore del mouse) invece che sullo schermo primario. Questa opzione si applica quando &quot;Mostra centrato&quot; è attivo, ma anche se la finestra dev&apos;essere centrata su un altro schermo (ad esempio perché un display è stato scollegato).</translation>
     </message>
     <message>
         <source>Light theme</source>
@@ -141,7 +141,7 @@
     </message>
     <message>
         <source>Font size</source>
-        <translation>Dimenstione carattere</translation>
+        <translation>Dimensione carattere</translation>
     </message>
     <message>
         <source>Results</source>
