@@ -158,9 +158,12 @@ void ResultsListDelegate::paint(QPainter *p,
     {
         auto tp = system_clock::now();
         pm = icon.pixmap(QSize(icon_size, icon_size), o.widget->devicePixelRatioF());
-        auto dur = duration_cast<milliseconds>(system_clock::now() - tp).count();
-        if (dur > 5)
-            WARN << u"Slow icon rendering: %1 ms - %2"_s.arg(dur).arg(icon.name());
+
+        if (auto dur = duration_cast<milliseconds>(system_clock::now() - tp).count();
+            dur > 5)
+            WARN << u"Slow icon rendering: %1 ms - %2 (%3)"_s
+                        .arg(dur).arg(icon.name(), i.data(IdentifierRole).value<QString>());
+
         QPixmapCache::insert(cache_key, pm);
     }
 
