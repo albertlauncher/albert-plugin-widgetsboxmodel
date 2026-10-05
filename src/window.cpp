@@ -1129,6 +1129,11 @@ bool Window::event(QEvent *event)
         // the layout does not request the size again, the contents get squeezed. Restore it
         // synchronously, before the stale size gets painted.
         //
+        // This is a known race in the protocol, the compositor cannot fix it without protocol
+        // changes. Remove this when it is fixed upstream.
+        // https://bugs.kde.org/show_bug.cgi?id=526679
+        // https://gitlab.freedesktop.org/wayland/wayland-protocols/-/work_items/199
+        //
         if (minimumSize() == maximumSize() && size() != minimumSize())
             resize(minimumSize());
     }
